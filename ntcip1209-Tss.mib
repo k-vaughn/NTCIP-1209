@@ -1,0 +1,2622 @@
+-- 1.1 TRANSPORTATION SENSOR SYSTEM OBJECTS 
+--***************************************************************************
+-- Filename:     NTCIP1209v0218.mib
+-- Description:  This MIB defines the object definitions for transportation
+--               sensor systems (TSS)
+-- Source:       NTCIP 1209v0218
+-- MIB Revision History:
+-- 2005          NTCIP 1209:2005 v01 approved
+-- 2008          Completed 1209 TSS Version v02 drafting
+-- 2014..........edited for publication
+-- 
+-- Copyright 2013 by the American Association of State Highway 
+-- and Transportation Officials (AASHTO), the Institute of Transportation
+-- Engineers (ITE), and the National Electrical Manufacturers Association
+-- (NEMA). All intellectual property rights, including but not limited to,
+-- the rights of reproduction, translation and display are reserved under the
+-- laws of the United States of America, the Universal Copyright Convention
+-- the Berne Convention, and the International and Pan-American Copyright
+-- Conventions. Except as licensed and permitted, you may not copy these
+-- materials without prior written permission from AASHTO, ITE, or NEMA.
+-- Use of these materials does not give you any rights of ownership or 
+-- claim of copyright in or to these materials.
+--
+--                    Joint NEMA, AASHTO, and ITE
+--                  NTCIP Management Information Base
+--                        DISTRIBUTION NOTICE
+--
+-- To the extent that these materials are distributed by AASHTO / ITE / NEMA
+-- in the form of a Data Dictionary ("DD") or Management Information Base
+-- ("MIB"), AASHTO / ITE / NEMA extend the following permission:
+-- You may make and / or distribute unlimited copies, including derivative
+-- works, of the DD or MIB, including copies for commercial distribution,
+-- provided that:
+-- (i) each copy you make and / or distribute contains the citation "Derived
+-- from NTCIP 0000 [insert the document number]. Used by permission of AASHTO
+-- / ITE / NEMA.";
+-- (ii) the copies or derivative works are not made part of the standards 
+-- publications or works offered by other standards developing organizations
+-- or publishers or as works-for-hire not associated with commercial hardware
+-- or software products intended for field implementation;
+-- (iii) use of the DD or MIB is restricted in that the syntax fields may be
+-- modified only to reflect a more restrictive subrange or enumerated value;
+-- (iv) the description field may be modified but only to the extent that:
+-- (a) only those bit values or enumerated values that are supported are
+-- listed; and (b) the more restrictive subrange is expressed.
+--
+-- These materials are delivered "AS IS" without any warranties as to their
+-- use or performance.
+--
+-- AASHTO / ITE / NEMA and their suppliers do not warrant the performance
+-- or results you may obtain by using these materials. AASHTO / ITE / NEMA
+-- and their suppliers make no warranties, express or implied, as to 
+-- noninfringement of third party rights, merchantability, or fitness for any
+-- particular purpose. In no event will AASHTO / ITE / NEMA or their
+-- suppliers be liable to you or any third party for any claim or for any
+-- consequential, incidental or special damages, including any lost profits
+-- or lost savings, arising from your reproduction or use of these materials,
+-- even if an AASHTO / ITE / NEMA representative has been advised of the
+-- possibility of such damages.
+-- 
+-- Some states or jurisdictions do not allow the exclusion or limitation of
+-- incidental, consequential or special damages, or the exclusion of implied
+-- warranties, so the above limitations may not apply to you.
+--
+-- Use of these materials does not constitute an endorsement or affiliation by
+-- or between AASHTO, ITE, or NEMA and you, your company, or your products and
+-- services.
+--
+-- If you are unwilling to accept the foregoing restrictions, you should
+-- immediately return these materials.
+--
+-- NTCIP is a trademark of AASHTO / ITE / NEMA.
+--****************************************************************************
+ 
+
+NTCIP1209v02-MIB1  DEFINITIONS::= BEGIN
+
+IMPORTS
+  IpAddress, Counter
+      FROM RFC1155-SMI
+  OBJECT-TYPE
+      FROM RFC-1212
+  DisplayString
+      FROM RFC1213-MIB
+  OwnerString, BITMAP8, BITMAP16, BITMAP32, tss
+      FROM NTCIP8004-2008;
+
+-- Additional textual conventions.
+BITMAP64  ::= OCTET STRING (SIZE (8))
+BITMAP96  ::= OCTET STRING (SIZE (12))
+BITMAP256  ::= OCTET STRING (SIZE (32))
+
+
+-- For the purpose of this section, the following OBJECT IDENTIFIERS 
+-- are used:
+-- the node location is: nema / transportation
+
+-- 1.2 SENSOR CONFIGURATION AND CAPABILITY OBJECTS
+tssSystemSetup OBJECT IDENTIFIER ::= { tss 1 }
+
+-- This node is an identifier used to group all objects for TSS sensor
+-- configurations that are common to all TSS. 
+-- <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1
+
+-- 1.2.1 Sensor Reset, Resynchronization, and Diagnostics
+sensorSystemReset  OBJECT-TYPE
+SYNTAX  INTEGER {
+                  restart (1),
+                  reinitializeUserSettings (2),
+                  restoreFactoryDefaults (3),
+                  retune (4),
+                  resyncSamplingPeriods (5),
+                  shortDiagnostics (6),
+                  fullDiagnostics (7),
+                  executePendingConfiguration (8),
+                  abortPendingConfiguration (9),
+                  validatePendingConfiguration (10),
+                  noResetInProgress (11)}
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION
+"<Definition> A software interface to initiate a reset of various functions of the TSS. Execution of the command shall set this object to the value 0.
+The reset commands are described as follows:
+      restart(1) - This command shall cause the unit to enter restart state
+      and go through a complete shut-down and start-up process, causing a
+      reset and initialization of the number of seconds since most recent
+      TSS initialization to a value of zero.
+      reinitializeUserSettings(2) ? This command shall cause the unit to 
+      flush all memory and reinitialize all settings to their user-defined 
+      default values, and reset and initialize the number of seconds since 
+      most recent TSS initialization to a value of zero.
+      restoreFactoryDefaults(3) - This command shall cause the unit to flush
+      all memory, restore all settings to their factory default values, and
+      reset and initialize the number of seconds since most recent TSS
+      initialization to a value of zero.
+      retune(4) ? This command recalibrates unit background settings for all
+      zones without resetting or flushing of any collected data.
+      resyncSamplingPeriods(5) ? This command shall cause the unit to
+      synchronize all startup sampling period clocks within one (1) second of
+      receiving the command and a reset and initialize of the number of
+      seconds since most recent TSS initialization to a value of zero.
+      shortDiagnostics(6) ? This command shall cause the unit to go through
+      an abbreviated vendor-specific diagnostic routine which may be the same
+      as full diagnostics for some vendors.
+      fullDiagnostics(7) ? This command shall cause the unit to go through
+      a complete vendor-specific diagnostic routine which may be the same as
+      short diagnostics for some vendors, causing a reset and initialization
+      of the number of seconds since most recent TSS initialization to a
+      value of zero.
+      executePendingConfiguration(8) ? The behavior of this command is
+      dependent upon type of configuration file uploaded and is manufacturer-
+      specific. Execution may result in a system reboot, reinitialization,
+      and loss of historical data.
+      abortPendingConfiguration(9) ? This command shall cause the TSS
+      to cancel the currently pending configuration changes.
+      validatePendingConfiguration(10) ? This command is used to check the
+      configuration to ensure that it is a valid configuration file.
+      noResetInProgress(11) ? No command is in-progress. All other commands
+      shall set this object to this state upon completion. This value is
+      read-only.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.1"
+::= { tssSystemSetup 1 }
+
+-- 1.2.2 Sensor System Status
+sensorSystemStatus  OBJECT-TYPE
+SYNTAX  INTEGER {
+                 other (1),
+                 oK (2),
+                 initializing (3),
+                 pendingConfigurationChange (4),
+                 validatingPendingConfiguration (5),
+                 diagError (6),
+                 activeConfigError (7),
+                 pendingConfigError (8) }
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION
+"<Definition> This data element provides an indication of the overall sensor system status, as follows:
+      other(1) - Indicates the presence of a hardware or software status that
+      is not designated as either OK or initializing.
+      oK(2) - Indicates that the unit is operating normally with no known
+      hardware or software faults, with no implications about data.
+      initializing(3) - Indicates that the unit has encountered no fault, but
+      is not ready for detection.
+      pendingConfigurationChange(4) - Indicates there is a new configuration
+      that is implemented in the TSS upon the executePendingConfiguration
+      command.
+      validatingPendingConfiguration (5) - Indicates that the TSS is
+      checking that the downloaded file is a valid configuration file.
+      diagError (6) - Indicates that a hardware malfunction has been
+      identified.
+      activeConfigError (7) - Indicates that the current configuration being
+      used in the TSS is invalid.
+      pendingConfigError (8) - Indicates that the pending configuration file
+      is invalid.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.2"
+::= { tssSystemSetup 2 }
+
+-- 1.2.3 Sensor System Occupancy Type
+sensorSystemOccupancyType OBJECT-TYPE
+SYNTAX  INTEGER {
+                  normalizedOtherOccupancy (1),
+                  nonNormalizedOccupancy (2),
+                  zoneOccupancy (3),
+                  normalizedSixFootLoopOccupancy (4),
+                  normalizedTwoMeterLoopOccupancy (5),
+                  normalizedPointOccupancy (6)}
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Indicates how to interpret the occupancy data of this TSS.
+      normalizedOtherOccupancy(1) - Occupancy is normalized to other
+      specific criteria that are not defined by other enumerated entries of
+      this data element. Use of this enumeration should be done carefully
+      as it could effect interoperability of equipment.
+      nonNormalizedOccupancy(2) - Occupancy is presented as non-normalized or
+      raw occupancy data.
+      zoneOccupancy(3) - Occupancy is presented for a given zone.
+      normalizedSixFootLoopOccupancy(4) - Occupancy is normalized to a 6-foot
+      by 6-foot loop.
+      normalizedTwoMeterLoopOccupancy(5) - Occupancy is normalized to a 2-
+      meter by 2-meter loop.
+      normalizedPointOccupancy(6) - Occupancy is normalized to a point.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.3"
+::= { tssSystemSetup 3 }
+
+-- 1.2.4 Maximum Number of Sensor Zones Parameter
+maxSensorZones OBJECT-TYPE
+SYNTAX  INTEGER (1..255)
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Indicates the maximum number of sensor zones supported by this TSS.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.4"
+::= { tssSystemSetup 4 }
+
+-- 1.2.5 Sensor Zone Table
+sensorZoneTable  OBJECT-TYPE
+SYNTAX  SEQUENCE OF SensorZoneEntry
+ACCESS  not-accessible
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> A table containing sensor zone unit parameters. The number of rows in this table is equal to the maxSensorZones data element. Table rows are set by the manufacturer, and row creation/deletion is not supported.
+<TableType> static
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5"
+::= { tssSystemSetup 5}
+
+sensorZoneEntry  OBJECT-TYPE
+SYNTAX  SensorZoneEntry
+ACCESS  not-accessible
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Table for sensor zone parameters.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1"
+
+INDEX { sensorZoneNumber }
+::= { sensorZoneTable 1 }
+
+SensorZoneEntry ::= SEQUENCE {
+      sensorZoneNumber                    INTEGER,
+      sensorZoneOptions                   BITMAP8,
+      sensorZoneOptionsStatus             BITMAP8,
+      sensorZoneSamplePeriod              INTEGER,
+      sensorZoneLabel                     OCTET STRING,
+      sensorZoneAndOperator               BITMAP64,
+      sensorZoneOrOperator                BITMAP64,
+      sensorZonePairedZone                INTEGER,
+      sensorZonePairedZoneOptions         BITMAP8,
+      sensorZonePairedZoneSpacing         INTEGER,
+      sensorZoneSpeedCorrectionFactor     INTEGER,
+      sensorZoneAvgVehicleLength          INTEGER,
+      sensorZoneLength                    INTEGER,
+      sensorZoneStatus                    INTEGER,
+      sensorZoneNoActivityFaultTime       INTEGER,
+      sensorZoneMaxPresenceFaultTime      INTEGER,
+      sensorZoneErraticCountsFaultTime    INTEGER,
+      sensorZoneErraticCountsThreshold    INTEGER }
+
+-- 1.2.5.1 Sensor Zone Number
+sensorZoneNumber  OBJECT-TYPE
+SYNTAX  INTEGER (1..255)
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> The numerical label or number of the sensor zone. This value shall not exceed the maxSensorZones data element value. sensorZoneNumber is used as an index for various data element tables.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.1"
+::= { sensorZoneEntry 1 }
+
+-- 1.2.5.2 Sensor Zone Options
+sensorZoneOptions  OBJECT-TYPE
+SYNTAX  BITMAP8
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> A bit-mapped value as defined below for commanding this sensor zone to be ENABLED or DISABLED. A non-configured system shall default to DISABLED.
+<Format>
+bit 7  0=DISABLED, 1=ENABLED  To command this sensor zone to be enabled or
+                              disabled;
+bits 6..0                     Reserved (bit 0=LSB)
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.2"
+::= { sensorZoneEntry 2 }
+
+-- 1.2.5.3 Sensor Zone Options Status
+sensorZoneOptionsStatus  OBJECT-TYPE
+SYNTAX  BITMAP8
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> A bit-mapped value as defined below for indicating the status of whether this sensor zone is ENABLED or DISABLED. A zone options status may be disabled even though the status is set to enabled. This can occur if the sensor has automatically disabled a zone. Example: The TSS is a camera that has Pan/Tilt/Zoom control and the camera is temporarily moved for a surveillance operation. All of the zones on this camera would be automatically disabled until the camera had been returned to its original position.
+<Format>
+bit 7   0=DISABLED, 1=ENABLED  To indicate the status of this sensor zone;
+bits 6..0                      Reserved (bit 0=LSB).
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.3"
+::= { sensorZoneEntry 3 }
+
+-- 1.2.5.4 Sensor Zone Sample Period Parameter
+sensorZoneSamplePeriod  OBJECT-TYPE
+SYNTAX  INTEGER (0..65535)
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Duration of the sample period in seconds for the sensor zone over which time data is collected. Sample period durations from 0 to 3600 are available for use. Values from 3601 to 65535 are reserved for future use. A sampling period of zero (0) means that data is not being collected, while the sensor zone may continue to be enabled.
+<Unit> second
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.4"
+DEFVAL { 0 }
+::= { sensorZoneEntry 4 }
+
+-- 1.2.5.5 Sensor Zone Label
+sensorZoneLabel  OBJECT-TYPE
+SYNTAX  OCTET STRING (SIZE(8..255))
+ACCESS  read-write
+STATUS  optional
+DESCRIPTION 
+"<Definition> A text string used to describe the TSS sensor zone. A maximum string length of less than 255 may be supported.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.5"
+::= { sensorZoneEntry 5 }
+
+-- 1.2.5.6 Sensor Zone Boolean AND Operator
+sensorZoneAndOperator OBJECT-TYPE
+SYNTAX  BITMAP64
+ACCESS  read-write
+STATUS  optional
+DESCRIPTION
+"<Definition> This data element identifies up to eight (8) unique zones that can be sequentially combined with a Boolean AND command to provide an input to this zone, as follows:
+<Format>
+Byte 1  Sensor zone number for the first Boolean AND combined with this zone,
+Byte 2  Sensor zone number for the second Boolean AND combined with this zone,
+Byte 3  Sensor zone number for the third Boolean AND combined with this zone,
+Byte 4  Sensor zone number for the fourth Boolean AND combined with this zone,
+Byte 5  Sensor zone number for the fifth Boolean AND combined with this zone,
+Byte 6  Sensor zone number for the sixth Boolean AND combined with this zone,
+Byte 7  Sensor zone number for the seventh Boolean AND combined with this zone,
+Byte 8  Sensor zone number for the eighth Boolean AND combined with this zone.
+Boolean AND combinations are processed before Boolean OR combinations. When read, this object returns last value written.
+-- This was TSS.orOperator:text in NTCIP 1209:2005 version v01. 
+-- Corrected this typo because orOperator:text is used below.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.6"
+::= { sensorZoneEntry 6 }
+
+-- 1.2.5.7 Sensor Zone Boolean OR Operator
+sensorZoneOrOperator OBJECT-TYPE
+SYNTAX  BITMAP64
+ACCESS  read-write
+STATUS  optional
+DESCRIPTION
+"<Definition> This data element identifies up to eight (8) unique zones that can be sequentially combined with a Boolean OR command to provide an input to this zone, as follows:
+<Format>
+Byte 1  Sensor zone number for the first Boolean OR combined with this zone,
+Byte 2  Sensor zone number for the second Boolean OR combined with this zone,
+Byte 3  Sensor zone number for the third Boolean OR combined with this zone,
+Byte 4  Sensor zone number for the fourth Boolean OR combined with this zone,
+Byte 5  Sensor zone number for the fifth Boolean OR combined with this zone,
+Byte 6  Sensor zone number for the sixth Boolean OR combined with this zone,
+Byte 7  Sensor zone number for the seventh Boolean OR combined with this zone,
+Byte 8  Sensor zone number for the eighth Boolean OR combined with this zone.
+Boolean AND combinations are processed before Boolean OR combinations. When read, this object returns last value written.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.7"
+::= { sensorZoneEntry 7 }
+
+-- 1.2.5.8 Sensor Zone Paired Zone
+sensorZonePairedZone  OBJECT-TYPE
+SYNTAX  INTEGER (0..255)
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION
+"<Definition> This is a zone that provides additional information to the current zone for features that require a sequenced second zone to determine direction of travel or time of travel (e.g., speed trap, wrong way, etc.)
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.8"
+::= { sensorZoneEntry 8 }
+
+-- 1.2.5.9 Sensor Zone Paired Zone Options
+sensorZonePairedZoneOptions  OBJECT-TYPE
+SYNTAX  BITMAP8
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION
+"<Definition> A bit-mapped value as defined below for indicating the status of the options for a paired zone.
+<Format>
+bit 0       0=OFF, 1=ON       For a Sensor Zone operating in pairs the Zone
+                              Placement Option ON indicates that the zone is
+                              the leading zone of the pair and Zone Placement
+                              Option OFF indicates that the zone is a trailing
+                              zone in the pair.
+bit 1       0=OFF, 1=ON       For a Sensor Zone operating in pairs the Single
+                              Zone Speed Mode Option is only used when there
+                              is an error on one of the paired zones. This
+                              parameter identifies how the TSS should
+                              calculate speed without the other zone. OFF
+                              indicates a manufacturer specific calculation
+                              and a Single Zone Speed Mode Option ON indicates
+                              the use of the calculation Speed = (Average
+                              Vehicle Length + Zone Length) / Detect Time. 
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.9"
+::= { sensorZoneEntry 9 }
+
+-- 1.2.5.10 Sensor Zone Paired Zone Spacing
+sensorZonePairedZoneSpacing  OBJECT-TYPE
+SYNTAX  INTEGER (1..255)
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION
+"<Definition> This parameter allows the user to set the spacing between paired zones for use in calculating vehicle speeds. This parameter is usually measured from the leading edge of one zone to the leading edge of the paired zone. 
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.10"
+::= { sensorZoneEntry 10 }
+
+-- 1.2.5.11 Sensor Zone Speed Correction Factor
+sensorZoneSpeedCorrectionFactor  OBJECT-TYPE
+SYNTAX  INTEGER (1..20000)
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION
+"<Definition> This is a percent multiplier for speed calculations within the TSS that is used to fine tune the accuracy of the reported speed. A setting of 1000 would be a multiplier of 1.000.
+<Unit> one one-thousandth of a percent
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.11"
+::= { sensorZoneEntry 11 }
+
+-- 1.2.5.12 Sensor Zone Average Vehicle Length
+sensorZoneAvgVehicleLength  OBJECT-TYPE
+SYNTAX  INTEGER (1..4000)
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION
+"<Definition> This parameter allows the user to set the average vehicle length for use in determining speed and classification. This allows for a range of lengths between 0.01 meters to 40 meters in length.
+<Unit> one-hundredth of a meter
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.12"
+::= { sensorZoneEntry 12}
+
+-- 1.2.5.13 Sensor Zone Length Parameter
+sensorZoneLength  OBJECT-TYPE
+SYNTAX  INTEGER (1..4000 | 65535)
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION
+"<Definition> This parameter allows the user to set the length of the sensor zone. The value of 65535 shall be returned to represent no zone length set. This allows for a range of lengths between 0.01 meters to 40 meters in length.
+<Unit> one-hundredth of a meter
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.13"
+::= { sensorZoneEntry 13 }
+
+-- 1.2.5.14 Sensor Zone Status
+sensorZoneStatus  OBJECT-TYPE
+SYNTAX  INTEGER {
+                 other (1),
+                 oK (2),
+                 initializing (3),
+                 noActivity (4),
+                 maxPresence (5),
+                 configurationError (6),
+                 erraticCounts (7),
+                 disabled (8),
+                 overrideActive (9),
+                 sensorFailure (10),
+                 inputDataIntegrity (11),
+                 poorContrast (12),
+                 detectionAutoSuspended (13),
+                 pairedZoneFault (14) }
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION
+"<Definition> Detailed status returned as result of diagnostics, as follows:
+      Value       Meaning
+      other(1) - Indicates an error has occurred within the TSS for which
+      there is no defined definition within this data element.
+      oK(2) - Indicates no other status values apply.
+      initializing(3) - Indicates an initialization or diagnostics procedure
+      is in-progress.
+      noActivity(4) - Indicates no activity condition.
+      maxPresence(5) - Indicates max presence condition.
+      configurationError(6) - Indicates an error within the TSS
+      configuration setup.
+      erraticCounts(7 )- Indicates erratic counts.
+      disabled(8) - Indicates that the zone is disabled.
+      overrideActive(9) - Indicates an override is active.
+      sensorFailure(10) - Indicates a sensing element failure.
+      inputDataIntegrity(11) - Indicates input values are not sufficient to
+      determine detector data accurately (e.g., bad communications, invalid
+      video for machine vision)
+      poorContrast(12) - Indicates insufficient contrast error condition.
+      detectionAutoSuspended(13) - Indicates that the detection zone was
+      automatically disabled by the TSS (e.g., camera is on a PTZ and
+      was moved).
+      pairedZoneFault(14) - Indicates that there was no problem with this
+      zone, but a zone that it is paired with had a fault. This may affect
+      the accuracy of data reported by this zone.
+If a condition occurs during the sample period, then that state remains for the duration of that sample period. If multiple conditions occur during a sample period, the last reported condition, other than OK, is retained.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.14"
+::= { sensorZoneEntry 14 }
+
+-- 1.2.5.15 Sensor Zone No Activity Fault Time
+sensorZoneNoActivityFaultTime  OBJECT-TYPE
+SYNTAX  INTEGER (0..65535)
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION
+"<Definition> Time period in seconds for the sensor zone during which, if there is no activity for the zone, a No Activity status is generated for the zone. A no activity fault time of zero (0) means that a no activity status cannot be generated for this sensor zone.
+<Unit> second
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.15"
+DEFVAL { 0 }
+::= { sensorZoneEntry 15 }
+
+-- 1.2.5.16 Sensor Zone Max Presence Fault Time
+sensorZoneMaxPresenceFaultTime  OBJECT-TYPE
+SYNTAX  INTEGER (0..65535)
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION
+"<Definition> Time period in seconds for the sensor zone during which, if there is constant activity for the zone, a Max Presence status is generated for the zone. A max presence fault time of zero (0) means that a max presence status cannot be generated for this sensor zone.
+<Unit> second
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.16"
+DEFVAL { 0 }
+::= { sensorZoneEntry 16 }
+
+-- 1.2.5.17 Sensor Zone Erratic Counts Fault Time
+sensorZoneErraticCountsFaultTime  OBJECT-TYPE
+SYNTAX  INTEGER (0..65535)
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION
+"<Definition> Time period in seconds for the sensor zone during which, if the Erratic Counts Threshold is created for the zone, an Erratic Counts status is generated for the zone. An erratic counts fault time of zero (0) means that an erratic counts status cannot be generated for this sensor zone.
+<Unit> second
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.17"
+DEFVAL { 0 }
+::= { sensorZoneEntry 17 }
+
+-- 1.2.5.18 Sensor Zone Erratic Counts Threshold
+sensorZoneErraticCountsThreshold  OBJECT-TYPE
+SYNTAX  INTEGER (0..65535)
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION
+"<Definition> The counts that if a sensor zone?s number of actuations meets or exceeds within the Erratic Counts Fault Time an Erratic Counts status is generated for the zone. An erratic counts threshold of zero (0) means that an erratic counts status cannot be generated for this sensor zone.
+<Unit> count
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.18"
+DEFVAL { 0 }
+::= { sensorZoneEntry 18 }
+
+-- 1.2.6 Clock Available
+clockAvailable OBJECT-TYPE
+SYNTAX  INTEGER {
+                 clockYes (1),
+                 clockNo (2) }
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Indicates availability of a real time clock within the TSS so that time can be referenced to CTime.
+      clockYes(1) - A real time clock is provided within the TSS,
+      conformant with the applicable requirements for managing time in NTCIP 1201 v03, and time is referenced to actual local time within the device.
+      clockNo(2) - A real time clock is not provided within the TSS and
+      time is expressed in the number of seconds since most recent TSS
+      initialization.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.6"
+::= { tssSystemSetup 6 }
+
+-- 1.2.7 Sensor Technology
+sensorTechnology  OBJECT-TYPE
+SYNTAX  INTEGER {
+                 other (1),
+                 inductiveLoop (2),
+                 machineVision (3) }
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Indicates the sensor technology used by this TSS.
+      other(1) - Any TSS that is not currently covered by this
+      standard. (e.g., microwave detectors)
+      inductive loop (2) - A physical detector of coiled wire that is
+      embedded in the driving surface that senses changes in magnetic
+      field as vehicles pass over. 
+      machine vision (3) - A non intrusive detection methodology
+      where in a video image of the driving surface is processed to
+      determine the passage of a vehicle.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.7"
+::= { tssSystemSetup 7 }
+
+-- 1.2.8 Maximum Sample Data Entries
+maxSampleDataEntries  OBJECT-TYPE
+SYNTAX  INTEGER (1..4)
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION
+"<Definition> Indicates the maximum number of historical data entries per zone supported by the TSS.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.8"
+::= { tssSystemSetup 8 }
+
+-- 1.2.9 Maximum Number of Characters
+maxNumberOfCharacters  OBJECT-TYPE
+SYNTAX  INTEGER (8..255)
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION
+"<Definition> The maximum number of characters per identifier label that the TSS supports.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.9"
+::= { tssSystemSetup 9 } 
+
+-- 1.2.10 Functional Capabilities
+functionalCapabilities  OBJECT-TYPE
+SYNTAX  BITMAP8
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION
+"<Definition> A bit-mapped value as defined below for identifying the functional capabilities of the TSS.
+<Format>
+bit 0       0=NOT SUPPORTED, 1=SUPPORTED        Sampling Features
+bit 1       0=NOT SUPPORTED, 1=SUPPORTED        Timing Features
+bit 2       0=NOT SUPPORTED, 1=SUPPORTED        Speed Features
+bits  3..7                                      Reserved (bit 7=MSB)
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.10"
+::= { tssSystemSetup 10 }
+
+-- 1.2.11 External Arming Inputs
+externalArmingInputs  OBJECT-TYPE
+SYNTAX  BITMAP64
+ACCESS  read-write
+STATUS  optional
+DESCRIPTION
+"<Definition> This allows other devices to modify the states of the Arming Input Bits used by the TSS. There are separate clears and sets so that multiple TSSs could maintain the states of individual Arming Input Bits. It is envisioned that the first 24 bits would correspond to the Greens, Yellows, and Reds of phases 1 through 8 from the traffic signal controller. The last 8 bits would be used for other phases, overlaps, or special functions. If the Arming Pin inputs are DC then a low input is an ON and a high input is an OFF. If the Arming Pin inputs are AC then a low input is an OFF and a high input is an ON.
+<Format>
+byte 1      Bit 0 = Clear Arming Input bit 1,
+            Bit 1 = Clear Arming Input bit 2,
+            Bit 2 = Clear Arming Input bit 3,
+            Bit 3 = Clear Arming Input bit 4,
+            Bit 4 = Clear Arming Input bit 5,
+            Bit 5 = Clear Arming Input bit 6,
+            Bit 6 = Clear Arming Input bit 7,
+            Bit 7 = Clear Arming Input bit 8,
+byte 2      Bit 0 = Clear Arming Input bit 9,
+            Bit 1 = Clear Arming Input bit 10,
+            Bit 2 = Clear Arming Input bit 11,
+            Bit 3 = Clear Arming Input bit 12,
+            Bit 4 = Clear Arming Input bit 13,
+            Bit 5 = Clear Arming Input bit 14,
+            Bit 6 = Clear Arming Input bit 15,
+            Bit 7 = Clear Arming Input bit 16,
+byte 3      Bit 0 = Clear Arming Input bit 17,
+            Bit 1 = Clear Arming Input bit 18,
+            Bit 2 = Clear Arming Input bit 19,
+            Bit 3 = Clear Arming Input bit 20,
+            Bit 4 = Clear Arming Input bit 21,
+            Bit 5 = Clear Arming Input bit 22,
+            Bit 6 = Clear Arming Input bit 23,
+            Bit 7 = Clear Arming Input bit 24,
+byte 4      Bit 0 = Clear Arming Input bit 25,
+            Bit 1 = Clear Arming Input bit 26,
+            Bit 2 = Clear Arming Input bit 27,
+            Bit 3 = Clear Arming Input bit 28,
+            Bit 4 = Clear Arming Input bit 29,
+            Bit 5 = Clear Arming Input bit 30,
+            Bit 6 = Clear Arming Input bit 31,
+            Bit 7 = Clear Arming Input bit 32,
+byte 5      Bit 0 = Set Arming Input bit 1,
+            Bit 1 = Set Arming Input bit 2,
+            Bit 2 = Set Arming Input bit 3,
+            Bit 3 = Set Arming Input bit 4,
+            Bit 4 = Set Arming Input bit 5,
+            Bit 5 = Set Arming Input bit 6,
+            Bit 6 = Set Arming Input bit 7,
+            Bit 7 = Set Arming Input bit 8,
+byte 6      Bit 0 = Set Arming Input bit 9,
+            Bit 1 = Set Arming Input bit 10,
+            Bit 2 = Set Arming Input bit 11,
+            Bit 3 = Set Arming Input bit 12,
+            Bit 4 = Set Arming Input bit 13,
+            Bit 5 = Set Arming Input bit 14,
+            Bit 6 = Set Arming Input bit 15,
+            Bit 7 = Set Arming Input bit 16,
+byte 7      Bit 0 = Set Arming Input bit 17,
+            Bit 1 = Set Arming Input bit 18,
+            Bit 2 = Set Arming Input bit 19,
+            Bit 3 = Set Arming Input bit 20,
+            Bit 4 = Set Arming Input bit 21,
+            Bit 5 = Set Arming Input bit 22,
+            Bit 6 = Set Arming Input bit 23,
+            Bit 7 = Set Arming Input bit 24,
+byte 8      Bit 0 = Set Arming Input bit 25,
+            Bit 1 = Set Arming Input bit 26,
+            Bit 2 = Set Arming Input bit 27,
+            Bit 3 = Set Arming Input bit 28,
+            Bit 4 = Set Arming Input bit 29,
+            Bit 5 = Set Arming Input bit 30,
+            Bit 6 = Set Arming Input bit 31,
+            Bit 7 = Set Arming Input bit 32,
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.11"
+::= { tssSystemSetup 11 }
+
+-- 1.2.12 Output Conditioning Table
+-- The outputConditioningTable replaces the loopOutputConditioningTable that
+-- is used in NTCIP 1209:2005 version v01.
+outputConditioningTable  OBJECT-TYPE
+SYNTAX  SEQUENCE OF OutputConditioningEntry
+ACCESS  not-accessible
+STATUS  mandatory
+DESCRIPTION
+"<Definition> Each table row contains objects for configuring detector sensor zone outputs. The number of rows in this table is equal to maxSensorZones. Table rows are set by the manufacturer, and row creation/deletion is not supported.
+<TableType> static
+<Object Identifier 1.3.6.1.4.1.1206.4.2.4.1.12"
+::= { tssSystemSetup 12 }
+
+outputConditioningEntry OBJECT-TYPE
+SYNTAX  OutputConditioningEntry
+ACCESS  not-accessible
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Each table row contains inductive loop detector sensor zone output conditioning parameters. 
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.12.1"
+
+INDEX { sensorZoneNumber }
+::= { outputConditioningTable 1 }
+
+OutputConditioningEntry ::= SEQUENCE {
+      sensorZoneOutputMode             INTEGER,
+      sensorZoneMaxPresenceTime        INTEGER,
+      sensorZoneOutputDelayTime        INTEGER,
+      sensorZoneOutputDelayMode        INTEGER,
+      sensorZoneOutputDelayEnables     BITMAP96,
+      sensorZoneOutputExtendTime       INTEGER,
+      sensorZoneOutputExtendMode       INTEGER,
+      sensorZoneOutputExtendEnables    BITMAP96,
+      sensorZoneOutputSequenced        INTEGER }
+
+-- 1.2.12.1 Zone Output Mode
+sensorZoneOutputMode  OBJECT-TYPE
+SYNTAX  INTEGER {
+                 other (1),
+                 pulse (2),
+                 presence (3),
+                 invalid (255)  }
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> This object sets the length of the output during a detect condition. These detect outputs are described as follows:
+      other(1) -  Other ? an output mode other than that defined in NTCIP
+      1209 v02.
+      pulse(2) -  Pulse - a pulse of 125ms (?25ms) is output when a vehicle is
+      detected.
+      presence(3) -  Presence - the output lasts the duration of a detect
+      condition or until the detector tunes out the detect signal.
+      Invalid(255) ? Invalid data - Something has invalid data.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.12.1.1"
+::= { outputConditioningEntry 1 }
+
+-- 1.2.12.2 Zone Maximum Presence Time
+sensorZoneMaxPresenceTime  OBJECT-TYPE
+SYNTAX  INTEGER (0..65535)
+ACCESS  read-write
+STATUS  optional
+DESCRIPTION 
+"<Definition> This object sets the maximum time that the zone holds presence before retuning. Values of 1 to 65534 seconds are available. A value of 0 disables this timer and prevents a sensor zone occupancy from being tuned out at the end of a specific time. A value of 65,535 represents invalid data.
+<Unit> second
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.12.1.2"
+::= { outputConditioningEntry 2 }
+
+-- 1.2.12.3 Zone Output Delay Time
+sensorZoneOutputDelayTime  OBJECT-TYPE
+SYNTAX  INTEGER (0..65535)
+ACCESS  read-write
+STATUS  optional
+DESCRIPTION 
+"<Definition> The output for the zone is delayed from start of sensor zone occupancy by the time specified (tenths of a second:  00.0 to 6553.5 sec). For the output to actually switch, the sensor zone occupancy is required to be continuous and still be present at the end of the delay time.
+<Unit> tenths of a second
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.12.1.3"
+REFERENCE
+"NEMA TS2 Clause 3.5.5.5.4.c and 6.5.2.24.1"  
+::= { outputConditioningEntry 3 }
+
+-- 1.2.12.4 Zone Output Delay Mode Parameter
+sensorZoneOutputDelayMode  OBJECT-TYPE
+SYNTAX  INTEGER {
+                 delayEnablesHaveNoEffect (1),
+                 delayEnablesORedActive (2),
+                 delayEnablesORedNotActive (3),
+                 delayEnablesANDedActive (4),
+                 delayEnablesANDedNotActive (5) }
+ACCESS  read-write
+STATUS  optional
+DESCRIPTION
+"<Definition> This parameter determines if and how the delay enables are used to modify the operation of the delay feature.
+      delayEnablesHaveNoEffect(1) ? The delay enables have no effect on the
+      delay feature of the zone.
+      delayEnablesORedActive(2) - If any of the delay enables are active the
+      delay feature is active, else the delay feature is not active.
+      delayEnablesORedNotActive(3) - If any of the delay enables are active
+      the delay feature is not active, else the delay feature is inactive.
+      delayEnablesANDedActive(4) - If all of the delay enables are active the
+      delay feature is active, else the delay feature is not active.
+      delayEnablesANDedNotActive(5) - If all of the delay enables are active
+      the delay feature is not active, else the delay feature is active.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.12.1.4"
+::= { outputConditioningEntry 4 }
+
+-- 1.2.12.5 Zone Output Delay Enables
+sensorZoneOutputDelayEnables  OBJECT-TYPE
+SYNTAX  BITMAP96
+ACCESS  read-write
+STATUS  optional
+DESCRIPTION
+"<Definition> This bit-mapped parameter identifies which Arming Pins, Arming Input Bits, and which state for each are to be used as enables for the delay feature. If the Arming Pin inputs are DC then a low input is an ON and a high input is an OFF. If the Arming Pin inputs are AC then a low input is an OFF and a high input is an ON.
+<Format>
+byte 1      Bit 0 = Arming Pin 1 OFF,
+            Bit 1 = Arming Pin 2 OFF,
+            Bit 2 = Arming Pin 3 OFF,
+            Bit 3 = Arming Pin 4 OFF,
+            Bit 4 = Arming Pin 5 OFF,
+            Bit 5 = Arming Pin 6 OFF,
+            Bit 6 = Arming Pin 7 OFF,
+            Bit 7 = Arming Pin 8 OFF,
+byte 2      Bit 0 = Arming Pin 9 OFF,
+            Bit 1 = Arming Pin 10 OFF,
+            Bit 2 = Arming Pin 11 OFF,
+            Bit 3 = Arming Pin 12 OFF,
+            Bit 4 = Arming Pin 13 OFF,
+            Bit 5 = Arming Pin 14 OFF,
+            Bit 6 = Arming Pin 15 OFF,
+            Bit 7 = Arming Pin 16 OFF,
+byte 3      Bit 0 = Arming Pin 1 ON,
+            Bit 1 = Arming Pin 2 ON,
+            Bit 2 = Arming Pin 3 ON,
+            Bit 3 = Arming Pin 4 ON,
+            Bit 4 = Arming Pin 5 ON,
+            Bit 5 = Arming Pin 6 ON,
+            Bit 6 = Arming Pin 7 ON,
+            Bit 7 = Arming Pin 8 ON,
+byte 4      Bit 0 = Arming Pin 9 ON,
+            Bit 1 = Arming Pin 10 ON,
+            Bit 2 = Arming Pin 11 ON,
+            Bit 3 = Arming Pin 12 ON,
+            Bit 4 = Arming Pin 13 ON,
+            Bit 5 = Arming Pin 14 ON,
+            Bit 6 = Arming Pin 15 ON,
+            Bit 7 = Arming Pin 16 ON,
+byte 5      Bit 0 = Arming Input bit 1 OFF,
+            Bit 1 = Arming Input bit 2 OFF,
+            Bit 2 = Arming Input bit 3 OFF,
+            Bit 3 = Arming Input bit 4 OFF,
+            Bit 4 = Arming Input bit 5 OFF,
+            Bit 5 = Arming Input bit 6 OFF,
+            Bit 6 = Arming Input bit 7 OFF,
+            Bit 7 = Arming Input bit 8 OFF,
+byte 6      Bit 0 = Arming Input bit 9 OFF,
+            Bit 1 = Arming Input bit 10 OFF,
+            Bit 2 = Arming Input bit 11 OFF,
+            Bit 3 = Arming Input bit 12 OFF,
+            Bit 4 = Arming Input bit 13 OFF,
+            Bit 5 = Arming Input bit 14 OFF,
+            Bit 6 = Arming Input bit 15 OFF,
+            Bit 7 = Arming Input bit 16 OFF,
+byte 7      Bit 0 = Arming Input bit 17 OFF,
+            Bit 1 = Arming Input bit 18 OFF,
+            Bit 2 = Arming Input bit 19 OFF,
+            Bit 3 = Arming Input bit 20 OFF,
+            Bit 4 = Arming Input bit 21 OFF,
+            Bit 5 = Arming Input bit 22 OFF,
+            Bit 6 = Arming Input bit 23 OFF,
+            Bit 7 = Arming Input bit 24 OFF,
+byte 8      Bit 0 = Arming Input bit 25 OFF,
+            Bit 1 = Arming Input bit 26 OFF,
+            Bit 2 = Arming Input bit 27 OFF,
+            Bit 3 = Arming Input bit 28 OFF,
+            Bit 4 = Arming Input bit 29 OFF,
+            Bit 5 = Arming Input bit 30 OFF,
+            Bit 6 = Arming Input bit 31 OFF,
+            Bit 7 = Arming Input bit 32 OFF,
+byte 9      Bit 0 = Arming Input bit 1 ON,
+            Bit 1 = Arming Input bit 2 ON,
+            Bit 2 = Arming Input bit 3 ON,
+            Bit 3 = Arming Input bit 4 ON,
+            Bit 4 = Arming Input bit 5 ON,
+            Bit 5 = Arming Input bit 6 ON,
+            Bit 6 = Arming Input bit 7 ON,
+            Bit 7 = Arming Input bit 8 ON,
+byte 10     Bit 0 = Arming Input bit 9 ON,
+            Bit 1 = Arming Input bit 10 ON,
+            Bit 2 = Arming Input bit 11 ON,
+            Bit 3 = Arming Input bit 12 ON,
+            Bit 4 = Arming Input bit 13 ON,
+            Bit 5 = Arming Input bit 14 ON,
+            Bit 6 = Arming Input bit 15 ON,
+            Bit 7 = Arming Input bit 16 ON,
+byte 11     Bit 0 = Arming Input bit 17 ON,
+            Bit 1 = Arming Input bit 18 ON,
+            Bit 2 = Arming Input bit 19 ON,
+            Bit 3 = Arming Input bit 20 ON,
+            Bit 4 = Arming Input bit 21 ON,
+            Bit 5 = Arming Input bit 22 ON,
+            Bit 6 = Arming Input bit 23 ON,
+            Bit 7 = Arming Input bit 24 ON,
+byte 12     Bit 0 = Arming Input bit 25 ON,
+            Bit 1 = Arming Input bit 26 ON,
+            Bit 2 = Arming Input bit 27 ON,
+            Bit 3 = Arming Input bit 28 ON,
+            Bit 4 = Arming Input bit 29 ON,
+            Bit 5 = Arming Input bit 30 ON,
+            Bit 6 = Arming Input bit 31 ON,
+            Bit 7 = Arming Input bit 32 ON,
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.12.1.5"
+::= { outputConditioningEntry 5 }
+
+-- 1.2.12.6 Zone Output Extend Time
+sensorZoneOutputExtendTime  OBJECT-TYPE
+SYNTAX  INTEGER (0..65535)
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> The output for the zone is extended, after the end of the period in which the sensor zone is occupied, by the amount of time specified (tenths of a second: 00.0 to 6553.5 sec).
+<Unit> tenths of a second
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.12.1.6"
+REFERENCE
+"NEMA TS2 Clause 3.5.5.5.4.d and 6.5.2.24.2"  
+::= { outputConditioningEntry 6 }
+
+-- 1.2.12.7 Zone Output Extend Mode
+sensorZoneOutputExtendMode  OBJECT-TYPE
+SYNTAX  INTEGER {
+                 extendEnablesHaveNoEffect (1),
+                 extendEnablesORedActive (2),
+                 extendEnablesORedNotActive (3),
+                 extendEnablesANDedActive (4),
+                 extendEnablesANDedNotActive (5) }
+ACCESS  read-write
+STATUS  optional
+DESCRIPTION
+"<Definition> This parameter determines if and how the extend enables will be used to modify the operation of the extend feature. 
+      extendEnablesHaveNoEffect(1) - The extend enables have no effect on the
+      extend feature of the zone.
+      extendEnablesORedActive(2) - If any of the extend enables are active the
+      extend feature is active, else the extend feature is not active.
+      extendEnablesORedNotActive(3) - If any of the extend enables are active
+      the extend feature is not active, else the extend feature is active.
+      extendEnablesANDedActive(4) - If all the extend enables are active the
+      extend feature is active, else the extend feature is not active.
+      extendEnablesANDedNotActive(5) - If all of the extend enables are active
+      the extend feature is not active, else the extend feature is active.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.12.1.7"
+::= { outputConditioningEntry 7 }
+
+-- 1.2.12.8 Zone Output Extend Enables
+sensorZoneOutputExtendEnables  OBJECT-TYPE
+SYNTAX  BITMAP96
+ACCESS  read-write
+STATUS  optional
+DESCRIPTION
+"<Definition> This bit-mapped parameter identifies which Arming Pins, Arming Input Bits, and which state for each are to be used as enables for the extend feature. If the Arming Pin inputs are DC then a low input is an ON and a high input is an OFF. If the Arming Pin inputs are AC then a low input is an OFF and a high input is an ON.
+<Format>
+byte 1      Bit 0 = Arming Pin 1 OFF,
+            Bit 1 = Arming Pin 2 OFF,
+            Bit 2 = Arming Pin 3 OFF,
+            Bit 3 = Arming Pin 4 OFF,
+            Bit 4 = Arming Pin 5 OFF,
+            Bit 5 = Arming Pin 6 OFF,
+            Bit 6 = Arming Pin 7 OFF,
+            Bit 7 = Arming Pin 8 OFF,
+byte 2      Bit 0 = Arming Pin 9 OFF,
+            Bit 1 = Arming Pin 10 OFF,
+            Bit 2 = Arming Pin 11 OFF,
+            Bit 3 = Arming Pin 12 OFF,
+            Bit 4 = Arming Pin 13 OFF,
+            Bit 5 = Arming Pin 14 OFF,
+            Bit 6 = Arming Pin 15 OFF,
+            Bit 7 = Arming Pin 16 OFF,
+byte 3      Bit 0 = Arming Pin 1 ON,
+            Bit 1 = Arming Pin 2 ON,
+            Bit 2 = Arming Pin 3 ON,
+            Bit 3 = Arming Pin 4 ON,
+            Bit 4 = Arming Pin 5 ON,
+            Bit 5 = Arming Pin 6 ON,
+            Bit 6 = Arming Pin 7 ON,
+            Bit 7 = Arming Pin 8 ON,
+Byte 4      Bit 0 = Arming Pin 9 ON,
+            Bit 1 = Arming Pin 10 ON,
+            Bit 2 = Arming Pin 11 ON,
+            Bit 3 = Arming Pin 12 ON,
+            Bit 4 = Arming Pin 13 ON,
+            Bit 5 = Arming Pin 14 ON,
+            Bit 6 = Arming Pin 15 ON,
+            Bit 7 = Arming Pin 16 ON,
+byte 5      Bit 0 = Arming Input bit 1 OFF,
+            Bit 1 = Arming Input bit 2 OFF,
+            Bit 2 = Arming Input bit 3 OFF,
+            Bit 3 = Arming Input bit 4 OFF,
+            Bit 4 = Arming Input bit 5 OFF,
+            Bit 5 = Arming Input bit 6 OFF,
+            Bit 6 = Arming Input bit 7 OFF,
+            Bit 7 = Arming Input bit 8 OFF,
+byte 6      Bit 0 = Arming Input bit 9 OFF,
+            Bit 1 = Arming Input bit 10 OFF,
+            Bit 2 = Arming Input bit 11 OFF,
+            Bit 3 = Arming Input bit 12 OFF,
+            Bit 4 = Arming Input bit 13 OFF,
+            Bit 5 = Arming Input bit 14 OFF,
+            Bit 6 = Arming Input bit 15 OFF,
+            Bit 7 = Arming Input bit 16 OFF,
+byte 7      Bit 0 = Arming Input bit 17 OFF,
+            Bit 1 = Arming Input bit 18 OFF,
+            Bit 2 = Arming Input bit 19 OFF,
+            Bit 3 = Arming Input bit 20 OFF,
+            Bit 4 = Arming Input bit 21 OFF,
+            Bit 5 = Arming Input bit 22 OFF,
+            Bit 6 = Arming Input bit 23 OFF,
+            Bit 7 = Arming Input bit 24 OFF,
+byte 8      Bit 0 = Arming Input bit 25 OFF,
+            Bit 1 = Arming Input bit 26 OFF,
+            Bit 2 = Arming Input bit 27 OFF,
+            Bit 3 = Arming Input bit 28 OFF,
+            Bit 4 = Arming Input bit 29 OFF,
+            Bit 5 = Arming Input bit 30 OFF,
+            Bit 6 = Arming Input bit 31 OFF,
+            Bit 7 = Arming Input bit 32 OFF,
+byte 9      Bit 0 = Arming Input bit 1 ON,
+            Bit 1 = Arming Input bit 2 ON,
+            Bit 2 = Arming Input bit 3 ON,
+            Bit 3 = Arming Input bit 4 ON,
+            Bit 4 = Arming Input bit 5 ON,
+            Bit 5 = Arming Input bit 6 ON,
+            Bit 6 = Arming Input bit 7 ON,
+            Bit 7 = Arming Input bit 8 ON,
+byte 10     Bit 0 = Arming Input bit 9 ON,
+            Bit 1 = Arming Input bit 10 ON,
+            Bit 2 = Arming Input bit 11 ON,
+            Bit 3 = Arming Input bit 12 ON,
+            Bit 4 = Arming Input bit 13 ON,
+            Bit 5 = Arming Input bit 14 ON,
+            Bit 6 = Arming Input bit 15 ON,
+            Bit 7 = Arming Input bit 16 ON,
+byte 11     Bit 0 = Arming Input bit 17 ON,
+            Bit 1 = Arming Input bit 18 ON,
+            Bit 2 = Arming Input bit 19 ON,
+            Bit 3 = Arming Input bit 20 ON,
+            Bit 4 = Arming Input bit 21 ON,
+            Bit 5 = Arming Input bit 22 ON,
+            Bit 6 = Arming Input bit 23 ON,
+            Bit 7 = Arming Input bit 24 ON,
+byte 12     Bit 0 = Arming Input bit 25 ON,
+            Bit 1 = Arming Input bit 26 ON,
+            Bit 2 = Arming Input bit 27 ON,
+            Bit 3 = Arming Input bit 28 ON,
+            Bit 4 = Arming Input bit 29 ON,
+            Bit 5 = Arming Input bit 30 ON,
+            Bit 6 = Arming Input bit 31 ON,
+            Bit 7 = Arming Input bit 32 ON,
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.12.1.8"
+::= { outputConditioningEntry 8 }
+
+-- 1.2.12.9 Zone Output Sequenced
+sensorZoneOutputSequenced  OBJECT-TYPE
+SYNTAX  INTEGER (0..255)
+ACCESS  read-write
+STATUS  optional
+DESCRIPTION
+"<Definition> This parameter identifies a zone that is required to have a detection before the zone associated with this output has a detection for this output to become active. This parameter can be used to create directional detection. If the zone associated with this output has a detection before the zone identified in this parameter, this output cannot be activated and the detection ceases before it can start watching the zone identified in this parameter. If the zone identified in this parameter has a detection and remains in detection, every time the zone associated with the output has a detection, its output is activated. The intent is that the two zones are in close enough proximity that a vehicle is able to be detected by both zones and that the last zone to detect the vehicle is the one that activates its output.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.12.1.9"
+::= { outputConditioningEntry 9 }
+
+-- 1.2.13 Pending Configuration File Name
+pendingConfigurationFileName  OBJECT-TYPE
+SYNTAX  OCTET STRING (SIZE(8..32))
+ACCESS  read-write
+STATUS  optional
+DESCRIPTION
+"<Definition> This identifies the name of the pending configuration file that is used by the TSS upon issuing the executePendingConfiguration command.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.13"
+::= { tssSystemSetup 13}
+
+-- 1.3 SENSOR CONTROL OBJECTS
+tssControl OBJECT IDENTIFIER ::= { tss 2 }
+-- node for output control data elements
+-- a sensor zone can be mapped to any available output
+-- outputs identify discrete activity states sensed within a zone
+-- output states should be refreshed upon change of state for each output
+-- <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2
+
+-- 1.3.1 Maximum Number of Outputs
+maxOutputNumber  OBJECT-TYPE
+SYNTAX  INTEGER (1..255)
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION
+"<Definition> Indicates the maximum number of outputs supported by this TSS.
+<unit> output
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.1"
+::= { tssControl 1 }
+
+-- 1.3.2 Output Configuration Table
+outputConfigurationTable  OBJECT-TYPE
+SYNTAX  SEQUENCE OF OutputConfigurationEntry
+ACCESS  not-accessible
+STATUS  mandatory
+DESCRIPTION 
+"<Description> Table containing configuration data elements for each TSS physical output. The number of rows in this table is equal to the maxOutputNumber data element. Table rows are set by the manufacturer, and row creation/deletion is not supported.
+<TableType> static
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.2"
+::= { tssControl 2 }  
+
+outputConfigurationEntry  OBJECT-TYPE
+SYNTAX  OutputConfigurationEntry
+ACCESS  not-accessible
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Row containing output configuration data elements.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.2.1"
+
+INDEX { outputNumber }
+::= { outputConfigurationTable 1}
+
+OutputConfigurationEntry ::= SEQUENCE {
+      outputNumber                  INTEGER,
+      outputSensorZoneNumber        INTEGER,
+      outputFailsafeMode            INTEGER,
+      outputModeStatus              BITMAP8,
+      outputLabel                   OCTET STRING (SIZE (8..255)),
+      outputArmingEnables           BITMAP96,
+      outputArmingMode              INTEGER }
+
+-- 1.3.2.1 Output Number
+outputNumber  OBJECT-TYPE
+SYNTAX  INTEGER (1..255)
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> The numerical label or number assigned to a physical output. Output number is also the row to which the outputConfigurationTable is referenced.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.2.1.1"
+::= { outputConfigurationEntry 1 }
+
+-- 1.3.2.2 Output Sensor Zone Number
+outputSensorZoneNumber  OBJECT-TYPE
+SYNTAX  INTEGER (0..255)
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION 
+"<Definition>The numerical label or number representing the sensor zone number that is associated with this output. A value of zero (0) indicates that no sensor zone number is associated with this output. When read, this data element returns the last value written.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.2.1.2"
+::= { outputConfigurationEntry 2}
+
+-- 1.3.2.3 Output Failsafe Mode
+outputFailsafeMode  OBJECT-TYPE
+SYNTAX  INTEGER {
+                 failsafeModeOn (1),
+                 failsafeModeOff (2),
+                 overrideCommandOn (3),
+                 overrideCommandOff (4),
+                 normal (5) }
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Data element that allows configuration of outputs for failure override modes, as follows:
+      failsafeModeOn(1) - The output is set to the ON state whenever there is 
+      a failure that affects the proper performance of this output;
+      failsafeModeOff(2) - The output is set to the OFF state whenever there
+      is a failure that affects the proper performance of this output;
+      overrideCommandOn(3) - The output is set to the ON state, overriding 
+      the normal operational state of the output;
+      overrideCommandOff(4) - The output is set to the OFF state, overriding
+      the normal operational state of the output;
+      normal(5) - The output is returned to its normal operational state.
+      When read, this data element returns the last value written except for
+      the value of 5. After a value of 5 is written, the value prior to the
+      normal command is returned.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.2.1.3"
+::= { outputConfigurationEntry 3 } 
+
+-- 1.3.2.4 Output Mode Status
+outputModeStatus  OBJECT-TYPE
+SYNTAX  BITMAP8
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> A bit-mapped value as defined below for reading the status of failure override modes, as follows:
+<Format>
+bit 7       0 = OFF, 1 = ON         For Failsafe Mode Status ON indicates the
+                                    Failsafe Mode is ON, meaning that the
+                                    output assumes an ON state whenever there
+                                    is a failure that in any way affects the
+                                    proper performance of this output and
+                                    Failsafe Mode Status OFF indicates the
+                                    status of the Failsafe Mode is OFF,
+                                    meaning that the output assumes an OFF
+                                    state whenever there is a failure that in
+                                    any way affects the proper performance of
+                                    this output (MSB);
+bit 6       0 = OFF, 1 = ON         For Override Command Status ON indicates
+                                    the presence of an Override to the normal
+                                    operational state of the output to ON and
+                                    Override Command Status Off indicates the
+                                    presence of an Override to the normal
+                                    operational state of the output to OFF;
+bit 5..0                            Reserved (bit 0 = LSB).
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.2.1.4"
+::= { outputConfigurationEntry 4 } 
+
+-- 1.3.2.5 Output Label
+outputLabel  OBJECT-TYPE
+SYNTAX  OCTET STRING (SIZE (8..255))
+ACCESS  read-write
+STATUS  optional
+DESCRIPTION 
+"<Definition> Text string to describe the TSS output. A maximum string length of less than 255 may be supported.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.2.1.5"
+::= { outputConfigurationEntry 5 }
+
+-- 1.3.2.6 Output Arming Enables
+outputArmingEnables  OBJECT-TYPE
+SYNTAX  BITMAP96
+ACCESS  read-write
+STATUS  optional
+DESCRIPTION 
+"<Definition> Consists of up to 16 physical Arming Pins to the TSS and up to 32 bits of external arming bits which can be controlled through this protocol. The Arming Pins have historically been connected to the phase greens but can be used for any purpose. It is envisioned that the phase green information could be sent through Arming Input Bits using the protocol and eliminate the need for additional wiring. If the Arming Pin inputs are DC then a low input is an ON and a high input is an OFF. If the Arming Pin inputs are AC then a low input is an OFF and a high input is an ON.
+<Format>
+byte 1      Bit 0 = Arming Pin 1 OFF,
+            Bit 1 = Arming Pin 2 OFF,
+            Bit 2 = Arming Pin 3 OFF,
+            Bit 3 = Arming Pin 4 OFF,
+            Bit 4 = Arming Pin 5 OFF,
+            Bit 5 = Arming Pin 6 OFF,
+            Bit 6 = Arming Pin 7 OFF,
+            Bit 7 = Arming Pin 8 OFF,
+byte 2      Bit 0 = Arming Pin 9 OFF,
+            Bit 1 = Arming Pin 10 OFF,
+            Bit 2 = Arming Pin 11 OFF,
+            Bit 3 = Arming Pin 12 OFF,
+            Bit 4 = Arming Pin 13 OFF,
+            Bit 5 = Arming Pin 14 OFF,
+            Bit 6 = Arming Pin 15 OFF,
+            Bit 7 = Arming Pin 16 OFF,
+byte 3      Bit 0 = Arming Pin 1 ON,
+            Bit 1 = Arming Pin 2 ON,
+            Bit 2 = Arming Pin 3 ON,
+            Bit 3 = Arming Pin 4 ON,
+            Bit 4 = Arming Pin 5 ON,
+            Bit 5 = Arming Pin 6 ON,
+            Bit 6 = Arming Pin 7 ON,
+            Bit 7 = Arming Pin 8 ON,
+byte 4      Bit 0 = Arming Pin 9 ON,
+            Bit 1 = Arming Pin 10 ON,
+            Bit 2 = Arming Pin 11 ON,
+            Bit 3 = Arming Pin 12 ON,
+            Bit 4 = Arming Pin 13 ON,
+            Bit 5 = Arming Pin 14 ON,
+            Bit 6 = Arming Pin 15 ON,
+            Bit 7 = Arming Pin 16 ON,
+byte 5      Bit 0 = Arming Input bit 1 OFF,
+            Bit 1 = Arming Input bit 2 OFF,
+            Bit 2 = Arming Input bit 3 OFF,
+            Bit 3 = Arming Input bit 4 OFF,
+            Bit 4 = Arming Input bit 5 OFF,
+            Bit 5 = Arming Input bit 6 OFF,
+            Bit 6 = Arming Input bit 7 OFF,
+            Bit 7 = Arming Input bit 8 OFF,
+byte 6      Bit 0 = Arming Input bit 9 OFF,
+            Bit 1 = Arming Input bit 10 OFF,
+            Bit 2 = Arming Input bit 11 OFF,
+            Bit 3 = Arming Input bit 12 OFF,
+            Bit 4 = Arming Input bit 13 OFF,
+            Bit 5 = Arming Input bit 14 OFF,
+            Bit 6 = Arming Input bit 15 OFF,
+            Bit 7 = Arming Input bit 16 OFF,
+byte 7      Bit 0 = Arming Input bit 17 OFF,
+            Bit 1 = Arming Input bit 18 OFF,
+            Bit 2 = Arming Input bit 19 OFF,
+            Bit 3 = Arming Input bit 20 OFF,
+            Bit 4 = Arming Input bit 21 OFF,
+            Bit 5 = Arming Input bit 22 OFF,
+            Bit 6 = Arming Input bit 23 OFF,
+            Bit 7 = Arming Input bit 24 OFF,
+byte 8      Bit 0 = Arming Input bit 25 OFF,
+            Bit 1 = Arming Input bit 26 OFF,
+            Bit 2 = Arming Input bit 27 OFF,
+            Bit 3 = Arming Input bit 28 OFF,
+            Bit 4 = Arming Input bit 29 OFF,
+            Bit 5 = Arming Input bit 30 OFF,
+            Bit 6 = Arming Input bit 31 OFF,
+            Bit 7 = Arming Input bit 32 OFF,
+byte 9      Bit 0 = Arming Input bit 1 ON,
+            Bit 1 = Arming Input bit 2 ON,
+            Bit 2 = Arming Input bit 3 ON,
+            Bit 3 = Arming Input bit 4 ON,
+            Bit 4 = Arming Input bit 5 ON,
+            Bit 5 = Arming Input bit 6 ON,
+            Bit 6 = Arming Input bit 7 ON,
+            Bit 7 = Arming Input bit 8 ON,
+byte 10     Bit 0 = Arming Input bit 9 ON,
+            Bit 1 = Arming Input bit 10 ON,
+            Bit 2 = Arming Input bit 11 ON,
+            Bit 3 = Arming Input bit 12 ON,
+            Bit 4 = Arming Input bit 13 ON,
+            Bit 5 = Arming Input bit 14 ON,
+            Bit 6 = Arming Input bit 15 ON,
+            Bit 7 = Arming Input bit 16 ON,
+byte 11     Bit 0 = Arming Input bit 17 ON,
+            Bit 1 = Arming Input bit 18 ON,
+            Bit 2 = Arming Input bit 19 ON,
+            Bit 3 = Arming Input bit 20 ON,
+            Bit 4 = Arming Input bit 21 ON,
+            Bit 5 = Arming Input bit 22 ON,
+            Bit 6 = Arming Input bit 23 ON,
+            Bit 7 = Arming Input bit 24 ON,
+byte 12     Bit 0 = Arming Input bit 25 ON,
+            Bit 1 = Arming Input bit 26 ON,
+            Bit 2 = Arming Input bit 27 ON,
+            Bit 3 = Arming Input bit 28 ON,
+            Bit 4 = Arming Input bit 29 ON,
+            Bit 5 = Arming Input bit 30 ON,
+            Bit 6 = Arming Input bit 31 ON,
+            Bit 7 = Arming Input bit 32 ON.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.2.1.6"
+::= { outputConfigurationEntry 6 }
+
+-- 1.3.2.7 Output Arming Mode
+outputArmingMode  OBJECT-TYPE
+SYNTAX  INTEGER {
+                 armingEnablesHaveNoEffect (1),
+                 normOffArmingEnablesORedZone (2),
+                 normOnArmingEnablesORedZone (3),
+                 normZoneArmingEnablesORedOff (4),
+                 normZoneArmingEnablesORedOn (5),
+                 normOffArmingEnablesANDedZone (6),
+                 normOnArmingEnablesANDedZone (7),
+                 normZoneArmingEnablesANDedOff (8),
+                 normZoneArmingEnablesANDedOn (9)}
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> This parameter determines if and how the Arming Enables are used to modify the operation of this output.
+      armingEnablesHaveNoEffect(1) - The Arming Enables have no effect on the
+      output of the zone.
+      normOffArmingEnablesORedZone(2) - The zone output is OFF when none of
+      the Arming Enables are active, and the actual zone state when any of
+      the Arming Enables are active.
+      normOnArmingEnablesORedZone(3) - The zone output is ON when none of
+      the Arming Enables are active, and the actual zone state when any of
+      the Arming Enables are active.
+      normZoneArmingEnablesORedOff(4) - The zone output is the actual zone
+      state when none of the Arming Enables are active, and OFF when any of
+      the Arming Enables are active.
+      normZoneArmingEnablesORedOn(5) - The zone output is the actual zone
+      state when none of the Arming Enables are active, and ON when any of
+      the Arming Enables are active.
+      normOffArmingEnablesANDedZone(6) - The zone output is OFF when any of
+      the Arming Enables are not active, and the actual zone state when all
+      of the Arming Enables are active.
+      normOnArmingEnablesANDedZone(7) - The zone output is ON when any of
+      the Arming Enables are not active, and the actual zone state when all
+      of the Arming Enables or active.
+      normZoneArmingEnablesANDedOff(8) - The zone output is the actual zone
+      state when any of the Arming Enables are not active, and OFF when all
+      of the Arming Enables are active.
+      normZoneArmingEnablesANDedOn(9) - The zone output is the actual zone
+      state when any of the Arming Enables are not active, and ON when all of
+      the Arming Enables are active.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.2.1.7"
+::= { outputConfigurationEntry 7 }
+
+-- 1.3.3 Maximum Number of Output Groups
+maxOutputGroups  OBJECT-TYPE
+SYNTAX  INTEGER (1..32)
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Indicates the maximum number of output groups supported by this TSS.
+<Unit> output
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.3"
+::= { tssControl 3 }
+
+-- 1.3.4 Output Group Table
+outputGroupTable  OBJECT-TYPE
+SYNTAX  SEQUENCE OF OutputGroupEntry
+ACCESS  not-accessible
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> A table containing input and output states for groups of eight outputs. Each output group represents a multiple of eight (8) sequentially numbered outputs. Output Group 1 consists of Outputs 1 to 8, Output Group 2 consists of Outputs 9 to 16, etc. The number of rows in this table is equal to the maxOutputGroups data element. Table rows are set by the manufacturer, and row creation/deletion is not supported.
+<TableType> static
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.4"
+::= { tssControl 4 }
+
+outputGroupEntry  OBJECT-TYPE
+SYNTAX  OutputGroupEntry
+ACCESS  not-accessible
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Table for output states, in groups of eight outputs. Each output group represents a multiple of eight (8) sequentially numbered outputs. Example: Output Group 1 consists of Outputs 1 to 8, Output Group 2 consists of Outputs 9 to 16, etc.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.4.1"
+
+INDEX { outputGroupNumber }
+::= { outputGroupTable 1 }
+
+OutputGroupEntry ::= SEQUENCE {
+            outputGroupNumber             INTEGER,
+            outputGroupOutputState        BITMAP8 }
+
+-- 1.3.4.1 Output Group Number
+outputGroupNumber  OBJECT-TYPE
+SYNTAX  INTEGER (1..32)
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Number of the output group, in groups of eight outputs. Each output group represents a multiple of eight (8) sequentially numbered outputs. Output Group 1 consists of Outputs 1 to 8, Output Group 2 consists of Outputs 9 to 16, etc.
+<Unit> output
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.4.1.1"
+::= { outputGroupEntry 1 }
+
+-- 1.3.4.2 Output Group Output State
+outputGroupOutputState  OBJECT-TYPE
+SYNTAX  BITMAP8
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Each bit represents the output state for each output within each output group. Each output group represents a multiple of eight (8) sequentially numbered outputs. Example: Output Group 1 consists of Outputs 1 to 8, Output Group 2 consists of Outputs 9 to 16, etc. Bit 0 represents output 1, bit 1 represents output 2, etc., as follows:
+<Format>
+      bit 7   0 = OFF, 1 = ON       For output 8 within the group (MSB),
+      bit 6   0 = OFF, 1 = ON       For output 7 within the group,
+      bit 5   0 = OFF, 1 = ON       For output 6 within the group,
+      bit 4   0 = OFF, 1 = ON       For output 5 within the group,
+      bit 3   0 = OFF, 1 = ON       For output 4 within the group,
+      bit 2   0 = OFF, 1 = ON       For output 3 within the group,
+      bit 1   0 = OFF, 1 = ON       For output 2 within the group,
+      bit 0   0 = OFF, 1 = ON       For output 1 within the group (LSB).
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.4.1.2"
+::= { outputGroupEntry 2 }
+
+-- 1.4 TSS DATA COLLECTION OBJECTS
+tssDataCollection OBJECT IDENTIFIER ::= { tss 3 }
+-- node for data collection elements
+-- <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3
+
+-- 1.4.1 Data Collection Table
+-- This object has been deprecated. See Annex D for more information.
+dataCollectionTable OBJECT-TYPE
+SYNTAX  SEQUENCE OF DataCollectionEntry
+ACCESS  not-accessible
+STATUS  deprecated
+DESCRIPTION 
+"<Definition> Table containing the most recently completed sample period data. The number of rows in this table is equal to the maxSensorZones data element. Table rows are set by the manufacturer, and row creation/deletion is not supported.
+
+If this object is supported, it reports the same data that is returned using the new object sampleDataTable with a sampleZoneClass of one and a sampleEntryNum of two.
+<TableType> static
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.1"
+::= { tssDataCollection 1 }
+
+dataCollectionEntry OBJECT-TYPE
+SYNTAX  DataCollectionEntry
+ACCESS  not-accessible
+STATUS  deprecated
+DESCRIPTION 
+"<Definition> Table for data collection parameters. 
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.1.1"
+
+INDEX { sensorZoneNumber }
+::= { dataCollectionTable 1 }
+
+DataCollectionEntry ::= SEQUENCE {
+      endTime           Counter,
+      volumeData        INTEGER,
+      percentOccupancy  INTEGER,
+      speedData         INTEGER,
+      zoneStatus        INTEGER }
+
+-- 1.4.1.1 End Time
+-- This object has been deprecated. See Annex D for more information.
+endTime  OBJECT-TYPE
+SYNTAX  Counter
+ACCESS  read-only
+STATUS  deprecated
+DESCRIPTION 
+"<Definition> Indicates the time at which the data collection period ended for the data contained in this row, the most recently completed sample period. If the clockAvailable data element indicates the presence of a clock, this time shall be expressed in local time as expressed in the controllerLocalTime data element (see NTCIP 1201 v03); otherwise, this time shall be expressed in the number of seconds since the most recent TSS initialization.
+
+If this object is supported, it must report the same data that will be returned using the new object, sampleDataTable.sampleEndTime, with a sampleZoneClass of one and a sampleEntryNum of two.
+<Unit> second
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.1.1.1"
+::= { dataCollectionEntry 1 }
+
+-- 1.4.1.2 Volume Data
+-- This object has been deprecated. See Annex D for more information.
+volumeData  OBJECT-TYPE
+SYNTAX  INTEGER (0..65535)
+ACCESS  read-only
+STATUS  deprecated
+DESCRIPTION
+"<Definition> Counts per sample period, for the most recently completed sample period. Counts are expressed as an integer value in the volumeData data element. The value of 65535 shall be returned to represent a missing value. A missing value is reported when the zoneStatus is anything other than OK for the entire sampling period.
+
+If this object is supported, it is required to report the same data that is returned using the new object, sampleDataTable.sampleVolumeData, with a sampleZoneClass of one and a sampleEntryNum of two.
+<Unit> count
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.1.1.2"
+::= { dataCollectionEntry 2 }
+
+-- 1.4.1.3 Percent Occupancy
+-- This object has been deprecated. See Annex D for more information.
+percentOccupancy  OBJECT-TYPE
+SYNTAX  INTEGER (0..1000 | 65535)
+ACCESS  read-only
+STATUS  deprecated
+DESCRIPTION
+"<Definition> Percent occupancy over the sample period for the most recently completed sample period. Occupancy is expressed in tenths of a percent, from 0 to 100.0 percent, in the percentOccupancy data element. The value of 65535 shall be returned to represent an invalid or missing value. A missing value is reported when the zoneStatus is anything other than OK for the entire sampling period. Values 1001 through 65534 are reserved for future use.
+
+If this object is supported, it must report the same data that will be returned using the new object, sampleDataTable.samplePercentOccupancy, with a sampleZoneClass of one and a sampleEntryNum of two.
+<Unit> percent
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.1.1.3"
+::= { dataCollectionEntry 3 }
+
+-- 1.4.1.4 Speed Data
+-- This object has been deprecated. See Annex D for more information.
+speedData  OBJECT-TYPE
+SYNTAX  INTEGER (0..2550 | 65535)
+ACCESS  read-only
+STATUS  deprecated
+DESCRIPTION
+"<Definition> Arithmetic mean of speeds collected over the sample period with units of 1/10ths of km/h, for the most recently completed sample period. For a volume of zero during the sample period, the value of 65535 shall be returned to represent an invalid or missing value. A missing value is reported when the zoneStatus returned indicates no other status values apply for the entire sampling period. Values 2551 through 65534 are reserved for future use.
+
+If this object is supported, it is required to report the same data that is returned using the new object, sampleDataTable.sampleSpeedData, with a sampleZoneClass of one and a sampleEntryNum of two.
+<Unit> tenths of km/h
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.1.1.4"
+-- conversion to English units must be done within the application
+::= { dataCollectionEntry 4 }
+
+-- 1.4.1.5 Zone Status
+-- This object has been deprecated. See Annex D for more information.
+zoneStatus  OBJECT-TYPE
+SYNTAX  INTEGER {
+                 other (1),
+                 oK (2),
+                 initializing (3),
+                 noActivity (4),
+                 maxPresence (5),
+                 configurationError (6),
+                 erraticCounts (7),
+                 disabled (8),
+                 overrideActive (9),
+                 sensorFailure (10) }
+ACCESS  read-only
+STATUS  deprecated
+DESCRIPTION 
+"<Definition> Detailed status returned as result of diagnostics, as follows:
+      Value           Meaning
+      Other - Indicates an error has occurred within the TSS for which
+      there is no defined definition within this data element,
+      oK - Indicates no other status values apply,
+      initializing - Indicates an initialization or diagnostics procedure is
+      in-progress,
+      noActivity - Indicates no activity condition,
+      maxPresence - Indicates max presence condition,
+      configurationError - Indicates an error within the TSS configuration
+      setup,
+      erraticCounts - Indicates erratic counts,
+      disabled - Indicates that the zone is disabled.
+      overrideActive - Indicates an override is active.
+      sensorFailure - Indicates a sensing element failure.
+
+If a condition occurs during the sample period, then that state remains for the duration of that sample period. If multiple conditions occur during a sample period, the last reported condition, other than OK, is retained.
+
+If this object is supported, it is required to report the same data that is returned using the new object, sampleDataTable.sampleZoneStatus, with a sampleZoneClass of one and a sampleEntryNum of two.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.1.1.5"
+::= { dataCollectionEntry 5 }
+
+-- 1.4.2 Data Buffer Table
+-- This object has been deprecated. See Annex D for more information.
+dataBufferTable  OBJECT-TYPE
+SYNTAX  SEQUENCE OF DataBufferEntry
+ACCESS  not-accessible
+STATUS  deprecated
+DESCRIPTION 
+"<Definition> Table containing the second most recently completed previous sample period data, which value is specified by the value of the sensorZoneSamplePeriod data element. The previous period data overwrites the data for the sample period data immediately preceding the previous sample period. The number of rows in this table is equal to the maxSensorZones data element. Table rows are set by the manufacturer, and row creation/deletion is not supported.
+
+If this object is supported, it is required to report the same data that is returned using the new object sampleDataTable with a sampleZoneClass of one and a sampleEntryNum of three.
+<TableType> static
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.2"
+::= { tssDataCollection 2 }
+
+dataBufferEntry  OBJECT-TYPE
+SYNTAX  DataBufferEntry
+ACCESS  not-accessible
+STATUS  deprecated
+DESCRIPTION 
+"<Definition> Table containing the data collection parameters for the second most recently completed previous sample period. 
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.2.1"
+
+INDEX { sensorZoneNumber }
+::= { dataBufferTable 1 }
+
+DataBufferEntry ::= SEQUENCE {
+      endTimeBuffer           Counter,
+      volumeDataBuffer        INTEGER,
+      percentOccupancyBuffer  INTEGER,
+      speedDataBuffer         INTEGER,
+      zoneStatusBuffer        INTEGER }
+
+-- 1.4.2.1 End Time Buffer
+-- This object has been deprecated. See Annex D for more information.
+endTimeBuffer OBJECT-TYPE
+SYNTAX  Counter
+ACCESS  read-only
+STATUS  deprecated
+DESCRIPTION 
+"<Definition> Indicates the time at which the data collection period ended for the data contained in this row, the second most recently completed previous sample period. If the clockAvailable data element indicates the presence of a clock, this time shall be expressed in local time as expressed in the controllerLocalTime data element (see NTCIP 1201 v03); otherwise, this time shall be expressed in the number of seconds since the most recent TSS initialization.
+
+If this object is supported, it is required to report the same data that is returned using the new object, sampleDataEntry.sampleEndTime, with a sampleZoneClass of one and a sampleEntryNum of three.
+<Unit> second
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.2.1.1"
+::= { dataBufferEntry 1 }
+
+-- 1.4.2.2 Volume Data Buffer
+-- This object has been deprecated. See Annex D for more information.
+volumeDataBuffer OBJECT-TYPE
+SYNTAX  INTEGER (0..65535)
+ACCESS  read-only
+STATUS  deprecated
+DESCRIPTION 
+"<Definition> Counts per sample period, for the second most recently completed previous sample period. Counts are expressed as an integer value in the volumeData data element. The value of 65535 shall be returned to represent a missing value. A missing value is reported when the zoneStatusBuffer returned indicates no other status values apply for the entire sampling period.
+
+If this object is supported, it is required to report the same data that is returned using the new object, sampleDataEntry.sampleVolumeData, with a sampleZoneClass of one and a sampleEntryNum of three.
+<Unit> count
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.2.1.2"
+::= { dataBufferEntry 2 }
+
+-- 1.4.2.3 Percent Occupancy Buffer
+-- This object has been deprecated. See Annex D for more information.
+percentOccupancyBuffer OBJECT-TYPE
+SYNTAX  INTEGER (0..1000 | 65535)
+ACCESS  read-only
+STATUS  deprecated
+DESCRIPTION 
+"<Definition> Percent occupancy over the sample period for the second most recently completed previous sample period. Occupancy is expressed in tenths of a percent, from 0 to 100.0 percent, in the percentOccupancy data element. The value of 65535 shall be returned to represent an invalid or missing value. A missing value is reported when the zoneStatusBuffer is anything other than OK for the entire sampling period. Values 1001 through 65534 are reserved for future use.
+
+If this object is supported, it is required to report the same data that is returned using the new object, sampleDataEntry.samplePercentOccupancy, with a sampleZoneClass of one and a sampleEntryNum of three.
+<Unit> percent
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.2.1.3"
+::= { dataBufferEntry 3 }
+
+-- 1.4.2.4 Speed Data Buffer
+-- This object has been deprecated. See Annex D for more information.
+speedDataBuffer OBJECT-TYPE
+SYNTAX  INTEGER (0..2550 | 65535)
+ACCESS  read-only
+STATUS  deprecated
+DESCRIPTION 
+"<Description> Arithmetic mean of speeds collected over the sample period, with units of 1/10ths of km/hr, for the second most recently completed previous sample period. For a volume of zero during the sample period, the value of 65535 shall be returned to represent an invalid or missing value. A missing value is reported when the zoneStatusBuffer is anything other than OK for the entire sampling period. Values 2551 through 65534 are reserved for future use.
+
+If this object is supported, it is required to report the same data that is returned using the new object, sampleDataEntry.sampleSpeedData, with a sampleZoneClass of one and a sampleEntryNum of three.
+<Unit> tenths of km/hr
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.2.1.4"
+-- conversions to English units from SI are required to be done within the applications
+::= { dataBufferEntry 4 }
+
+-- 1.4.2.5 Zone Status Buffer
+-- This object has been deprecated. See Annex D for more information.
+zoneStatusBuffer  OBJECT-TYPE
+SYNTAX  INTEGER {
+                 other (1),
+                 oK (2),
+                 initializing (3),
+                 noActivity (4),
+                 maxPresence (5),
+                 configurationError (6),
+                 erraticCounts (7),
+                 disabled (8),
+                 overrideActive (9),
+                 sensorFailure (10)
+                 }
+ACCESS  read-only
+STATUS  deprecated
+DESCRIPTION "Detailed status returned as result of diagnostics, for the previous sample period, as follows:
+      Value        Meaning
+      Other - Indicates an error has occurred within the TSS for which
+      there is no defined definition within this data element,
+      oK - Indicates no other status values apply,
+      initializing - Indicates an initialization or diagnostics procedure is
+      in-progress,
+      noActivity - Indicates no activity condition,
+      maxPresence - Indicates max presence condition,
+      configurationError - Indicates an error within the TSS configuration
+      setup,
+      erraticCounts - Indicates erratic counts,
+      disabled - Indicates that the zone is disabled,
+      overrideActive - Indicates an override is active,
+      sensorFailure - Indicates a sensing element failure.
+
+If a condition occurs during the sample period, then that state remains for the duration of that sample period. If multiple conditions occur during a sample period, the last reported condition, other than OK, is retained.
+
+If this object is supported, it is required to report the same data that is returned using the new object, sampleDataEntry.sampleZoneStatus, with a sampleZoneClass of one and a sampleEntryNum of three.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.2.1.5"
+::= { dataBufferEntry 5 }
+
+-- 1.4.3 Zone Sequence Table
+zoneSequenceTable OBJECT-TYPE
+SYNTAX  SEQUENCE OF ZoneSequenceTableEntry
+ACCESS  not-accessible
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Table containing entries for the number of historical data entries and the number of classes available for retrieval for each zone. The maxSensorZones defines the number of entries in this table. For each zone, retrieve the numSampleDataEntries available and the sensorZoneClass for those historical data entries, then retrieve the appropriate data samples from the sampleDataTable.
+<TableType> static
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.3"
+::= { tssDataCollection 3 }
+
+zoneSequenceTableEntry OBJECT-TYPE
+SYNTAX  ZoneSequenceTableEntry
+ACCESS  not-accessible
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Table containing the number of historical data entries and the number of classes within each historical data entry for each zone. The maxSensorZones table defines the number of entries in this table. 
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.3.1"
+
+INDEX { sensorZoneNumber }
+::= { zoneSequenceTable 1 }
+
+ZoneSequenceTableEntry::= SEQUENCE {
+      numSampleDataEntries    INTEGER,
+      numSensorZoneClass      INTEGER }
+
+-- 1.4.3.1 Number of Sample Data Entries
+numSampleDataEntries  OBJECT-TYPE
+SYNTAX  INTEGER (1..5)
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> The number of historical data entries in the sampleDataTable for a particular zone.
+<Unit> count
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.3.1.1"
+::= { zoneSequenceTableEntry 1 }
+
+-- 1.4.3.2 Number of Sensor Zone Class
+numSensorZoneClass OBJECT-TYPE
+SYNTAX  INTEGER (1..255)
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> This is the number of classes currently supported for each historical data entry for a particular zone.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.3.1.2"
+::= { zoneSequenceTableEntry 2 }
+
+-- 1.4.4 Sample Data Table
+sampleDataTable OBJECT-TYPE
+SYNTAX  SEQUENCE OF SampleDataEntry
+ACCESS  not-accessible
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Table containing the historical sample period data. The number of rows in this table is equal to the maxSensorZones data element multiplied by the maxSampleDataEntries data element. Table rows are set by the manufacturer, and row creation/deletion is not supported.
+
+To retrieve all historical data entries for a zone, the last (oldest) entry should be retrieved by using numSampleDataEntries and retrieving class one (1) through numSensorZoneClass first. Class 1 is an aggregation of the data from all of the other classes (if any exist). All of the class data for a particular numSampleDataEntries has the same sequenceNumber. Once these entries are retrieved, the other entries sequence numbers denote the correct order of the samples. Sequence number is used rather than end date as the system clock may have been reset between data samples. 
+<TableType> static
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4"
+::= { tssDataCollection 4 }
+
+sampleDataEntry OBJECT-TYPE
+SYNTAX  SampleDataEntry
+ACCESS  not-accessible
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Table for data collection parameters. 
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4.1"
+
+INDEX { sensorZoneNumber, sampleEntryNum, sampleZoneClass }
+::= { sampleDataTable 1 }
+
+SampleDataEntry ::= SEQUENCE {
+      sampleEntryNum          INTEGER,
+      sampleZoneClass         INTEGER,
+      sampleEndTime           Counter,
+      sampleVolumeData        INTEGER,
+      samplePercentOccupancy  INTEGER,
+      sampleSpeedData         INTEGER,
+      sampleZoneStatus        INTEGER,
+      sampleSequenceNumber    INTEGER }
+
+-- 1.4.4.1 Sample Entry Number
+sampleEntryNum  OBJECT-TYPE
+SYNTAX  INTEGER (1..5)
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION
+"<Definition> This identifies which historical sampling period that data is being requested from. 1 being the sampling period currently in-progress. 2 being the most recently completed sampling period.
+<Unit> count
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4.1.1"
+::= { sampleDataEntry 1 }
+
+-- 1.4.4.2 Sample Zone Class
+sampleZoneClass  OBJECT-TYPE
+SYNTAX  INTEGER (1..255)
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION
+"<Definition> This identifies the class of the sensor zone from which historical sampling period data is being requested. Class 1 retrieves an aggregate of the data from all classes within the requested historical data entry.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4.1.2"
+::= { sampleDataEntry 2 }
+
+-- 1.4.4.3 Sample End Time
+sampleEndTime OBJECT-TYPE
+SYNTAX  Counter
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Indicates the time at which the data collection period ended for the data contained in this row. If the clockAvailable data element indicates the presence of a clock, this time shall be expressed in local time as expressed in the controllerLocalTime data element (see NTCIP 1201 v03); otherwise, this time shall be expressed in the number of seconds since the most recent TSS initialization.
+<Unit> seconds
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4.1.3"
+::= { sampleDataEntry 3 }
+
+-- 1.4.4.4 Sample Volume Data
+sampleVolumeData  OBJECT-TYPE
+SYNTAX  INTEGER (0..65535)
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Counts per sample period. Counts are expressed as an integer value in the sampleVolumeData data element. For a virtual zone (one created using any AND Boolean functions), volume is the number of times that the output for the zone was activated. For a virtual zone (one created using only OR Boolean functions), volume is the additive total of the volumes of all of the zones that make up the virtual zone. The value of 65535 shall be returned to represent a missing value. A missing value is reported when the zoneStatus is anything other than OK for the entire sampling period.
+<Unit> count
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4.1.4"
+::= { sampleDataEntry 4 }
+
+-- 1.4.4.5 Sample Percent Occupancy
+samplePercentOccupancy  OBJECT-TYPE
+SYNTAX  INTEGER (0..1000 | 65535)
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Percent occupancy over the sample period. Occupancy is expressed in tenths of a percent, from 0 to 100.0 percent, in the samplePercentOccupancy data element. For a virtual zone (one created using AND and/or OR Boolean functions), the percent of time that the output for the zone was activated shall be returned. The value of 65535 shall be returned to represent an invalid or missing value. A missing value is reported when the zoneStatus is anything other than OK for the entire sampling period. Values 1001 through 65534 are reserved for future use.
+<Unit> percent
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4.1.5"
+::= { sampleDataEntry 5 }
+
+-- 1.4.4.6 Sample Speed Data
+sampleSpeedData  OBJECT-TYPE
+SYNTAX  INTEGER (0..2550 | 65535)
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Arithmetic mean of speeds collected over the sample period with units of 1/10ths of km/h. For a virtual zone (one created using AND and/or OR Boolean functions), the value of 65535 shall be returned as it is not straight forward to calculate speed from logically combined zones. For a volume of zero during the sample period, the value of 65535 shall be returned to represent an invalid or missing value. A missing value is reported when the zoneStatus returned indicates no other status values apply for the entire sampling period. Values 2551 through 65534 are reserved for future use.
+<Unit> tenths of km/h
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4.1.6"
+-- conversion to English units must be done within the application
+::= { sampleDataEntry 6 }
+
+-- 1.4.4.7 Sample Zone Status
+sampleZoneStatus  OBJECT-TYPE
+SYNTAX  INTEGER {
+                 other (1),
+                 oK (2),
+                 initializing (3),
+                 noActivity (4),
+                 maxPresence (5),
+                 configurationError (6),
+                 erraticCounts (7),
+                 disabled (8),
+                 overrideActive (9),
+                 sensorFailure (10),
+                 inputDataIntegrity (11),
+                 poorContrast (12),
+                 detectionAutoSuspended (13),
+                 pairedZoneFault (14) }
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Detailed status returned as result of diagnostics, as follows:
+      Value       Meaning
+      other(1) - Indicates an error has occurred within the TSS for which
+      there is no defined definition within this data element.
+      oK(2) - Indicates no other status values apply.
+      initializing(3) - Indicates an initialization or diagnostics procedure
+      is in-progress.
+      noActivity(4) - Indicates no activity condition.
+      maxPresence(5) - Indicates max presence condition.
+      configurationError(6) - Indicates an error within the TSS
+      configuration setup.
+      erraticCounts(7 )- Indicates erratic counts.
+      disabled(8) - Indicates that the zone is disabled.
+      overrideActive(9) - Indicates an override is active.
+      sensorFailure(10) - Indicates a sensing element failure.
+      inputDataIntegrity(11) - indicates input values are not sufficient to
+      determine detector data accurately (e.g., bad communications, invalid
+      video for machine vision).
+      poorContrast(12) - Indicates insufficient contrast error condition.
+      detectionAutoSuspended(13) - Indicates that the detection zone was
+      automatically disabled by the TSS (e.g., camera is on a PTZ and
+      was moved).
+      pairedZoneFault(14) - Indicates that there was no problem with this
+      zone, but a zone that it is paired with had a fault. This may affect
+      the accuracy of data reported by this zone.
+If a condition occurs during the sample period, then that state remains for the duration of that sample period. If multiple conditions occur during a sample period, the last reported condition, other than OK, is retained.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4.1.7"
+::= { sampleDataEntry 7 }
+
+-- 1.4.4.8 Sample Sequence Number
+sampleSequenceNumber OBJECT-TYPE
+SYNTAX  INTEGER (0..65535)
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> The data samples sequence number, used to determine the appropriate order of samples for a particular zone. All data from the same sampling period have the same historical sequence number (all classes from the same period have the same sequence number). 
+<Unit> count
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4.1.8"
+::= { sampleDataEntry 8 }
+
+-- 1.4.5 Zone Class Table
+zoneClassTable OBJECT-TYPE
+SYNTAX  SEQUENCE OF ZoneClassTableEntry
+ACCESS  not-accessible
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> This is a table that allows the TSS to return a class label for a particular class of a particular zone. These are most likely set by the manufacturer; however the manufacturer may allow the user to modify these through means outside of this protocol.
+<TableType> static
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.5"
+::= { tssDataCollection 5 }
+
+zoneClassTableEntry OBJECT-TYPE
+SYNTAX  ZoneClassTableEntry
+ACCESS  not-accessible
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Table containing entries for the class labels for each zone. 
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.5.1"
+
+INDEX { sensorZoneNumber, sampleZoneClass }
+::= { zoneClassTable 1 }
+
+ZoneClassTableEntry ::= SEQUENCE {
+      zoneClassLabel      OCTET STRING }
+
+-- 1.4.5.1 Zone Class Label
+zoneClassLabel  OBJECT-TYPE
+SYNTAX  OCTET STRING (SIZE (1..255))
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION
+"<Definition> The label assigned to a particular class number to aid in identifying the data contained within the class. 
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.5.1.1"
+::= { zoneClassTableEntry 1 }
+
+-- 1.5 INDUCTIVE LOOP DETECTOR OBJECTS
+tssInductiveLoop OBJECT IDENTIFIER ::= { tss 4 }
+
+-- This node contains the configuration objects specific to inductive loop
+-- detectors.
+-- These objects set up physical parameters on the detector that are 
+-- controlled on a per output basis. 
+-- These objects are only valid for the zones that map directly to an output
+-- on the detector. 
+-- Zone 1 maps to output 1 and Zone 2 maps to output 2 on a two-channel
+-- sensor unit and Zone 3 maps to output 3, and Zone 4 maps to output 4 on a 
+-- four-channel sensor unit.
+-- For inductive loop detectors, the term "channel" is often used to refer to
+-- an "output".
+-- <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4
+
+-- 1.5.1 Loop System Setup Table
+loopSensorSetupTable OBJECT-TYPE
+SYNTAX  SEQUENCE OF LoopSensorSetupEntry
+ACCESS  not-accessible
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> This table contains inductive loop detector sensor zone parameters. The number of rows in this table does not exceed maxSensorZones. This table contains the configuration objects specific to inductive loop detectors. These objects set up physical parameters on the detector that are controlled on a per output basis. A zone maps directly to an output on an inductive loop detector - Zone 1 maps to output 1, Zone 2 maps to output 2, and, on a four-channel sensor unit, Zone 3 maps to output 3 and Zone 4 maps to output 4. Virtual zones may be supported once all physical outputs have had sensor zones mapped to them. Table rows are set by the manufacturer, and row creation/deletion is not supported.
+<TableType> static
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.1"
+::= { tssInductiveLoop 1 }
+
+loopSensorSetupEntry OBJECT-TYPE
+SYNTAX  LoopSensorSetupEntry
+ACCESS  not-accessible
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Row in table that contains inductive loop detector sensor zone parameters. The number of rows in this table does not exceed maxSensorZones or maxOutputNumber, whichever is greater. Table rows are set by the manufacturer, and row creation/deletion is not supported.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.1.1"
+
+INDEX { sensorZoneNumber }
+::= { loopSensorSetupTable 1 }
+
+LoopSensorSetupEntry ::= SEQUENCE {
+      zoneSensitivityMode     INTEGER,
+      zoneSensitivity         OCTET STRING,
+      zoneFrequencyRange      OCTET STRING,
+      sensorZoneLoopLayout    INTEGER }
+
+-- 1.5.1.1 Zone Sensitivity Mode
+zoneSensitivityMode  OBJECT-TYPE
+SYNTAX  INTEGER { 
+                 deltaL (1),
+                 deltaLOverSqrtL (2),
+                 deltaLOverL (3) }
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Sensitivity mode in use (3=?L/L, 2=?L/?L, 1=?L). This is a characteristic of the loop detector being used.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.1.1.1"
+::= { loopSensorSetupEntry 1 }
+
+-- 1.5.1.2 Zone Sensitivity
+zoneSensitivity  OBJECT-TYPE
+SYNTAX  OCTET STRING (SIZE(2))
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> This bit-mapped object allows the setting and reading of the sensitivity for the zone as follows:
+<Format>
+bit 3,bit 2,bit1,bit 0        Meaning
+      0000        Zone OFF (Disabled) (LSB)
+      0001        Detect ?L = 512 nanoHenries or ?L/L = 0.64%
+      0010        Detect ?L = 256 nanoHhenries or ?L/L = 0.32%
+      0011        Detect ?L = 128 nanoHenries or ?L/L = 0.16%
+      0100        Detect ?L = 64 nanoHenries or ?L/L = 0.08%
+      0101        Detect ?L = 32 nanoHenries or ?L/L = 0.04%
+      0110        Detect ?L = 16 nanoHenries or ?L/L = 0.02%
+      0111        Detect ?L = 8 nanoHenries or ?L/L = 0.01%
+      or, if bit 15=1   Detect ?L = 0 to 32,767 nanoHenries or ?L/L = 0 to
+      32.767% (MSB)
+These sensitivity definitions are equal with a loop inductance of 80 microHenries. A detector need not support all of these settings. However, the sensitivities it does support are required to conform with these definitions, e.g. a sensitivity setting of 3 is always 128 nanoHenries or 0.16% with an 80 microhenry loop. If bit 15=1, bit 0 ? bit 14 contain the sensitivity in nanoHenries or one-thousands of a percent, e.g. 3650 is 3.650%. A value of 65535 shall be returned to represent invalid data or not a physical zone. Values of 8 through 32767 are reserved.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.1.1.2"
+::= { loopSensorSetupEntry 2 }
+
+-- 1.5.1.3 Zone Frequency Range
+zoneFrequencyRange  OBJECT-TYPE
+SYNTAX  OCTET STRING (SIZE(1))
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION
+"<Definition> Allows the setting and reading of the frequency range as follows:
+<Format>
+      bit 2, bit 1, bit 0          Meaning 
+      000               Frequency Range 0 (lowest frequency) (LSB)
+      001               Frequency Range 1
+      010               Frequency Range 2
+      011               Frequency Range 3 (highest frequency for 4 freq. 
+                        unit) (MSB)
+As the frequency number increases the operation frequency shall increase. The loop frequency at the lowest frequency setting shall be less than 88% of the loop frequency at the highest frequency setting. Bit 3 can be used to allow a unit to support 8 frequency ranges instead of the four. A value of 255 shall be returned to represent invalid data or not a physical zone. Values of 8 through 254 are reserved.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.1.1.3"
+::= { loopSensorSetupEntry 3 }
+
+-- 1.5.1.4 Sensor Zone Loop Layout
+sensorZoneLoopLayout  OBJECT-TYPE
+SYNTAX  INTEGER {
+                 other (1),
+                 oneSixBySixLoopOneLane (2),
+                 twoSixBySixLoopsOneLane (3),
+                 threeSixBySixLoopsOneLane (4),
+                 fourSixBySixLoopsOneLane (5),
+                 oneLongLoopOneLane (6),
+                 oneSixBySixLoopMultipleLanes (7) }
+ACCESS  read-write
+STATUS  optional
+DESCRIPTION
+"<Definition> The zone configuration provides for standardized sensor loop layouts typically used in roadway applications.
+      other(1) - Used for special loop configurations and layouts.
+      oneSixBySixLoopOneLane(2) - Used when there in one six-foot by six-
+      foot loop in one travel lane.
+      twoSixBySixLoopsOneLane(3) - Used when there are two six-foot by six-
+      foot loops in one travel lane. 
+      threeSixBySixLoopsOneLane(4) - Used when there are three six-foot by
+      six-foot loops in one travel lane.
+      fourSixBySixLoopsOneLane(5) - Used when there are four six-foot by six-
+      foot loops in one travel lane.
+      oneLongLoopOneLane(6) - Used when there is one loop in one travel
+      lane that exceeds six-feet in length.
+      oneSixBySixLoopMultipleLanes(7) - Used when there is one six-foot by
+      six-foot loop in each of more than one travel lane.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.1.1.4"
+::= { loopSensorSetupEntry 4 }
+
+-- 1.5.2 Loop Output Conditioning Table
+-- This object has been deprecated. See Annex D for more information.
+loopOutputConditioningTable  OBJECT-TYPE
+SYNTAX  SEQUENCE OF LoopOutputConditioningEntry
+ACCESS  not-accessible
+STATUS  deprecated
+DESCRIPTION 
+"<Definition> Each table row contains objects for configuring inductive loop detector sensor zone outputs. The number of rows in this table does not exceed maxSensorZones. Table rows are set by the manufacturer, and row creation/deletion is not supported.
+
+If this object is supported, it must use the same data that will be used by the new object outputConditioningTable.
+<TableType> static
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.2"
+::= { tssInductiveLoop 2 }
+
+loopOutputConditioningEntry  OBJECT-TYPE
+SYNTAX  LoopOutputConditioningEntry
+ACCESS  not-accessible
+STATUS  deprecated
+DESCRIPTION 
+"<Definition> Each table row contains inductive loop detector sensor zone output conditioning parameters. 
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.2.1"
+
+INDEX { sensorZoneNumber }
+::= { loopOutputConditioningTable 1 }
+
+LoopOutputConditioningEntry ::= SEQUENCE {
+      zoneOutputMode         INTEGER,
+      zoneMaxPresenceTime    INTEGER,
+      zoneOutputDelayTime    INTEGER,
+      zoneOutputExtendTime    INTEGER,
+      zoneOutputExtendEnable    OCTET STRING,
+      zoneOutputDelayEnable     OCTET STRING }
+
+-- 1.5.2.1 Zone Output Mode
+-- This object has been deprecated. See Annex D for more information.
+zoneOutputMode  OBJECT-TYPE
+SYNTAX  INTEGER {
+                 other (1),
+                 pulse (2),
+                 presence (3) }
+ACCESS  read-write
+STATUS  deprecated
+DESCRIPTION 
+"<Definition> This object sets the length of the output during a detect condition. These detect outputs are described as follows:
+      Other - an output mode other than that defined in NTCIP 1209 v02.
+      Pulse - a pulse of 125ms (?25ms) is output when a vehicle is
+      detected.
+      Presence - the output lasts the duration of a detect condition or
+      until the detector tunes out the detect signal.
+A value of 255 shall be returned to represent invalid data.
+
+If this object is supported, it is required to use the same data that is used by the new object outputConditioningEntry.sensorZoneOutputMode.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.2.1.1"
+::= { loopOutputConditioningEntry 1 }
+
+-- 1.5.2.2 Zone Max Presence Feature Time
+-- This object has been deprecated. See Annex D for more information.
+zoneMaxPresenceTime  OBJECT-TYPE
+SYNTAX  INTEGER (0..65535)
+ACCESS  read-write
+STATUS  deprecated
+DESCRIPTION 
+"<Definition> This object sets the maximum time that the zone holds presence before retuning. Values of 1 to 65534 seconds are available. A value of 0 disables this timer and prevents a sensor zone occupancy from being tuned out at the end of a specific time. A value of 65,535 represents invalid data.
+
+If this object is supported, it is required to use the same data that is used by the new object outputConditioningEntry.sensorZoneMaxPresenceTime.
+<Unit> second
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.2.1.2"
+::= { loopOutputConditioningEntry 2 }
+
+-- 1.5.2.3 Zone Output Delay Time
+-- This object has been deprecated. See Annex D for more information.
+zoneOutputDelayTime  OBJECT-TYPE
+SYNTAX  INTEGER (0..65535)
+ACCESS  read-write
+STATUS  deprecated
+DESCRIPTION 
+"<Definition> The output for the zone is delayed from start of sensor zone occupancy by the time specified (tenths of a second:  00.0 to 6553.5 sec). For the output to actually switch, the sensor zone occupancy is required to be continuous and still be present at the end of the delay time.
+
+If this object is supported, it is required to use the same data that is used by the new object outputConditioningEntry.sensorZoneOutputDelayTime.
+<Unit> tenths of a second
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.2.1.3"
+REFERENCE
+"NEMA TS2 Clause 3.5.5.5.4.c and 6.5.2.24.1"  
+::= { loopOutputConditioningEntry 3 }
+
+-- 1.5.2.4 Zone Output Extend Time
+-- This object has been deprecated. See Annex D for more information.
+zoneOutputExtendTime  OBJECT-TYPE
+SYNTAX  INTEGER (0..65535)
+ACCESS  read-write
+STATUS  deprecated
+DESCRIPTION 
+"<Definition> The output for the zone is extended, after the end of the period in which the sensor zone is occupied, by the amount of time specified (tenths of a second: 00.0 to 6553.5 sec).
+
+If this object is supported, it is required to use the same data that is used by the new object outputConditioningEntry.sensorZoneOutputExtendTime.
+<Unit> tenths of a second
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.2.1.4"
+REFERENCE
+"NEMA TS2 Clause 3.5.5.5.4.d and 6.5.2.24.2"  
+::= { loopOutputConditioningEntry 4 }
+
+-- 1.5.2.5 Zone Output Extend Enable
+-- This object has been deprecated. See Annex D for more information.
+zoneOutputExtendEnable  OBJECT-TYPE
+SYNTAX  OCTET STRING (SIZE(1))
+ACCESS  read-write
+STATUS  deprecated
+DESCRIPTION  
+"<Definition> A bit-mapped value as defined below to enable and disable the extend time for the sensor zone output, as follows:
+<Format>
+bit 7    0 = NO, 1 = YES            HIGH on output 1 Arming Pin to enable
+                                    extend time for the zone (MSB),
+bit 6    0 = NO, 1 = YES            HIGH on output 2 Arming Pin to enable
+                                    extend time for the zone,
+bit 5    0 = NO, 1 = YES            HIGH on output 3 Arming Pin to enable
+                                    extend time for the zone,
+bit 4    0 = NO, 1 = YES            HIGH on output 4 Arming Pin to enable
+                                    extend time for the zone,
+bit 3    0 = NO, 1 = YES            LOW on output 1 Arming Pin to enable
+                                    extend time for the zone (MSB),
+bit 2    0 = NO, 1 = YES            LOW on output 2 Arming Pin to enable
+                                    extend time for the zone,
+bit 1    0 = NO, 1 = YES            LOW on output 3 Arming Pin to enable
+                                    extend time for the zone,
+bit 0    0 = NO, 1 = YES            LOW on output 4 Arming Pin to enable
+                                    extend time for the zone (LSB).
+Extend time is always enabled for the zone if all bits are zero (0).
+
+If this object is supported, it must use the same data that will be used by the new objects outputConditioningEntry.sensorZoneOutputExtendMode and outputConditioningEntry.sensorZoneOutputExtendEnables to the extent possible.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.2.1.5"
+REFERENCE
+"NEMA TS2 Clause 6.5.2.8.7, 6.5.2.24 and 6.5.2.25.6"
+::= { loopOutputConditioningEntry 5 }
+
+-- 1.5.2.6 Zone Output Delay Enabled
+-- This object has been deprecated. See Annex D for more information.
+zoneOutputDelayEnable  OBJECT-TYPE
+SYNTAX  OCTET STRING (SIZE(1))
+ACCESS  read-write
+STATUS  deprecated
+DESCRIPTION  
+"<Definition> A bit-mapped value as defined below to enable and disable the delay time for the sensor zone output, as follows:
+<Format>
+bit 7    0 = NO, 1 = YES            HIGH on output 1 Arming Pin to enable
+                                    delay time for the zone (MSB),
+bit 6    0 = NO, 1 = YES            HIGH on output 2 Arming Pin to enable
+                                    delay time for the zone,
+bit 5    0 = NO, 1 = YES            HIGH on output 3 Arming Pin to enable
+                                    delay time for the zone,
+bit 4    0 = NO, 1 = YES            HIGH on output 4 Arming Pin to enable
+                                    delay time for the zone,
+bit 3    0 = NO, 1 = YES            LOW on output 1 Arming Pin to enable delay
+                                    time for the zone (MSB),
+bit 2    0 = NO, 1 = YES            LOW on output 2 Arming Pin to enable delay
+                                    time for the zone,
+bit 1    0 = NO, 1 = YES            LOW on output 3 Arming Pin to enable delay
+                                    time for the zone,
+bit 0    0 = NO, 1 = YES            LOW on output 4 Arming Pin to enable delay
+                                    time for the zone,
+Delay time is always enabled for the zone if all bits are zero (0).
+
+If this object is supported, it is required to use the same data that is used by the new objects outputConditioningEntry.sensorZoneOutputDelayMode and outputConditioningEntry.sensorZoneOutputDelayEnables to the extent possible.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.2.1.6"
+REFERENCE
+"NEMA TS2 Clause 6.5.2.8.7, 6.5.2.24 and 6.5.2.25.6"
+::= { loopOutputConditioningEntry 6 }
+
+-- 1.5.3 Loop System Status Table
+loopSystemStatusTable  OBJECT-TYPE
+SYNTAX  SEQUENCE OF LoopSystemStatusEntry
+ACCESS  not-accessible
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> This table contains inductive loop detector sensor zone status parameters. The number of rows in this table does not exceed maxSensorZones. This table contains instantaneous zone status objects specific to inductive loop detectors. The zoneDetectStatus object may be used by external systems for doing detailed traffic analysis. A zone maps directly to an output on an inductive loop detector - Zones 1 maps to output 1, Zone 2 maps to output 2, and, on a four output inductive loop detector, Zone 3 maps to output 3 and Zone 4 maps to output 4. Table rows are set by the manufacturer, and row creation/deletion is not supported.
+<TableType> static
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.3"
+::= { tssInductiveLoop 3 }
+
+loopSystemStatusEntry OBJECT-TYPE
+SYNTAX  LoopSystemStatusEntry
+ACCESS  not-accessible
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Rows in this table contain inductive loop detector sensor zone status parameters. The number of rows in this table does not exceed maxSensorZones. Table rows are set by the manufacturer, and row creation/deletion is not supported. 
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.3.1"
+
+INDEX { sensorZoneNumber }
+::= { loopSystemStatusTable 1 }
+
+LoopSystemStatusEntry ::= SEQUENCE {
+      zoneInductance                INTEGER,
+      zoneFrequency                 INTEGER,
+      zoneInductanceChange          INTEGER,
+      zoneFaultHistory              BITMAP8,
+      zoneFaultCount                INTEGER,
+      zonePercentInductanceChange   INTEGER }
+
+-- 1.5.3.1 Zone Inductance
+zoneInductance  OBJECT-TYPE
+SYNTAX  INTEGER (0..65535)
+ACCESS  read-only
+STATUS  optional
+DESCRIPTION 
+"<Definition> The detector unit calculates the inductance of the loop attached to the zone. The resolution is in tenths of a microHenry. For example, 852.4 microHenries is represented as 8524. Resolution does not imply accuracy, refer to manufacturers' data sheet. A value of 65535 shall be returned to represent invalid data or not a physical zone.
+<Unit> tenths of a microHenry
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.3.1.1"
+::= { loopSystemStatusEntry 1 }
+
+-- 1.5.3.2 Zone Frequency
+zoneFrequency  OBJECT-TYPE
+SYNTAX  INTEGER (0..16777216)
+ACCESS  read-only
+STATUS  optional
+DESCRIPTION  
+"<Definition> This is the frequency of the inductive loop attached to the zone. The frequency resolution is one-tenth hertz. For example, 53240 Hz is represented as 532400. Resolution does not imply accuracy, refer to manufacturers' data sheet. A value of 16777216 shall be returned to represent invalid data or not a physical zone.
+<Unit> one-tenth Hertz
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.3.1.2"
+::= { loopSystemStatusEntry 2 }
+
+-- 1.5.3.3 Zone Inductance Change
+zoneInductanceChange  OBJECT-TYPE
+SYNTAX  INTEGER (0..8388608)
+ACCESS  read-only
+STATUS  optional
+DESCRIPTION  
+"<Definition> The maximum inductance change seen since the last start of sensor zone occupancy is returned. The resolution is to one nanoHenry. Resolution does not imply accuracy.
+<Unit> nanoHenry
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.3.1.3"
+::= { loopSystemStatusEntry 3 }
+
+-- 1.5.3.4 Zone Fault History
+zoneFaultHistory  OBJECT-TYPE
+SYNTAX  BITMAP8
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION  
+"<Definition> A bit-mapped value representing the history of faults in Zone since the last unit reset.
+<Format>
+bit 7       0 = NO, 1 = YES         To indicate that a current fault exists
+                                    on the loop connected to the zone (MSB);
+bit 6       0 = NO, 1 = YES         To indicate that the loop connected to the
+                                    zone is open or this was the last fault.
+                                    (May be also be called a Maximum Presence
+                                    fault by external units.);
+bit 5       0 = NO, 1 = YES         To indicate that the loop connected to the
+                                    zone is shorted or this was the last
+                                    fault. (May also be called a No Activity
+                                    fault by external units.);
+bit 4       0 = NO, 1 = YES         To indicate that the loop inductance of
+                                    the loop connected to the zone is
+                                    currently ? ?25% of reference or this was
+                                    the last fault. (May also be called a
+                                    Erratic Count fault by external units.);
+bits 3..1                           Reserved;
+bit 0       0 = NO, 1 = YES         To indicate that data for this value is
+                                    invalid data or this is not a physical
+                                    zone (LSB).
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.3.1.4"
+::= { loopSystemStatusEntry 4 }
+
+-- 1.5.3.5 Zone Fault Count
+zoneFaultCount  OBJECT-TYPE
+SYNTAX  INTEGER (0..255)
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Number of faults in the zone since the last unit reset. These faults include open circuit; short circuit and ?25% drift faults. The fault count may also include faults other than those defined in NTCIP 1209 v02. The count after 255 is 255.
+<Unit> fault
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.3.1.5"
+::= { loopSystemStatusEntry 5 }
+
+-- 1.5.3.6 Zone Percent Inductance Change
+zonePercentInductanceChange  OBJECT-TYPE
+SYNTAX  INTEGER (0..100000)
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION  
+"<Definition> The maximum inductance change seen since the last start of sensor zone occupancy is returned. The resolution is to one one-thousandth of a percent. Resolution does not imply accuracy. For example a change of 0.1 percent would be represented as 100.
+<Unit> one one-thousandth of a percent
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.3.1.6"
+::= { loopSystemStatusEntry 6 }
+
+-- 1.6 MACHINE VISION OBJECTS
+tssMachineVision OBJECT IDENTIFIER ::={tss 5}
+
+-- This node contains the configuration objects specific to machine vision
+-- detectors
+-- <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5
+
+-- 1.6.1 Maximum Camera Count
+maxCameraCount  OBJECT-TYPE
+SYNTAX  INTEGER (1..255)
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION
+"<Definition> This is the maximum number of machine vision cameras supported by the system.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.1"
+::= { tssMachineVision 1 }
+
+-- 1.6.2 Machine Vision Camera Table
+machineVisionCameraTable  OBJECT-TYPE
+SYNTAX  SEQUENCE OF MachineVisionCameraEntry
+ACCESS  not-accessible
+STATUS  mandatory
+DESCRIPTION
+"<Definition> This table contains camera parameters. The number of rows in this table does not exceed maxCameraCount. This table contains the configuration objects specific to machine vision cameras. Table rows are set by the manufacturer, and row creation/deletion is not supported.
+<TableType>  Static
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.2"
+::= { tssMachineVision 2 }
+
+machineVisionCameraEntry OBJECT-TYPE
+SYNTAX  MachineVisionCameraEntry
+ACCESS  not-accessible
+STATUS  mandatory
+DESCRIPTION
+"<Definition> Row in table that contains machine vision camera parameters. The number of rows in this table does not exceed maxCameraCount. Table rows are set by the manufacturer, and row creation/deletion is not supported. 
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.2.1"
+INDEX { cameraNumber }
+::= { machineVisionCameraTable 1 }
+
+MachineVisionCameraEntry ::= SEQUENCE {
+      cameraNumber                  INTEGER,
+      cameraNameLabel               OCTET STRING,
+      imageReceptionDiagnostic      INTEGER,
+      cameraDetectionState          INTEGER,
+      zoneListForCamera             BITMAP256,
+      baselineImage                 INTEGER,
+      snapshotImage                 INTEGER,
+      cameraImageFormat             BITMAP32 }
+
+-- 1.6.2.1 Camera Number
+cameraNumber  OBJECT-TYPE
+SYNTAX  INTEGER (1..255)
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION
+"<Definition> The numerical label or number of the machine vision camera. This number shall not exceed the maxCameraCount data element value.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.2.1.1"
+::= { machineVisionCameraEntry 1 }
+
+-- 1.6.2.2 Camera Name Label
+cameraNameLabel  OBJECT-TYPE
+SYNTAX  OCTET STRING (SIZE (8..255))
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION
+"<Definition> A text string used to describe the camera name or location. A camera name shall be a string length of less than 255 characters. 
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.2.1.2"
+::= { machineVisionCameraEntry 2 }
+
+-- 1.6.2.3 Image Reception Diagnostic
+imageReceptionDiagnostic  OBJECT-TYPE
+SYNTAX  INTEGER (0..100)
+ACCESS  read-only 
+STATUS  mandatory
+DESCRIPTION
+"<Definition> Image Reception Diagnostics is a measure of the health of the image transition link from the camera to the machine vision processor. A value of 100 means that all of the frames are being received and a value of 0 means that frames are not being received. Values between 0 and 100 are manufacturer-specific. This is used to track and debug transmission errors from the camera to the machine vision processor. 
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.2.1.3"
+::= { machineVisionCameraEntry 3 }
+
+-- 1.6.2.4 Camera Detection State
+cameraDetectionState  OBJECT-TYPE
+SYNTAX  INTEGER {
+                 detectionIsNotDisabled (1),
+                 detectionIsDisabled (2) }
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION
+"<Definition> A camera can be enabled/disabled so that it may be used for other purposes such as surveillance. A disabled camera puts the associated zones in failsafe mode. If a pole has been hit and the camera is no longer looking at the traffic this can be used to put all the zones associated with that camera in failsafe mode. It can also be used for pan-tilt-zoom camera to disable detection so that the camera may be used for surveillance allowing the camera to look at areas other than the detection area. Enabling the camera places all the zones associated with that camera back into their defined detection mode.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.2.1.4"
+::= { machineVisionCameraEntry 4 }
+
+-- 1.6.2.5 Zone List for Camera
+zoneListForCamera  OBJECT-TYPE
+SYNTAX  BITMAP256
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION
+"<Definition> This is a bit map where a 1 in a bit position indicates that zone is with the selected camera. The least significant bit (bit 0) of the first octet (byte) shall represent zone 1 and bit 6 of the 32nd octet (byte) shall represent zone 255. The most significant bit of the 32nd octet (byte) is reserved and shall not be set.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.2.1.5"
+::= { machineVisionCameraEntry 5 }
+
+-- 1.6.2.6 Baseline Image
+baselineImage OBJECT-TYPE
+SYNTAX  INTEGER {
+                 notSupported (1),
+                 supportedAndAvailable (2),
+                 supportedButNotAvailable (3) }
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION
+"<Definition> Determines whether the machine vision camera supports a baseline image and the status of that image.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.2.1.6"
+::= { machineVisionCameraEntry 6 }
+
+-- 1.6.2.7 Snapshot Image
+snapshotImage  OBJECT-TYPE
+SYNTAX  INTEGER {
+                 notSupported (1),
+                 supported (2) }
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION
+"<Definition> This data element determines whether the machine vision camera supports a snapshot image.
+            notSupported(1) - Indicates that the machine vision camera does
+            not support snapshot images.
+            supported(2) - Indicates that the machine vision camera supports
+            snapshot images.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.2.1.7"
+::= { machineVisionCameraEntry 7 }
+
+-- 1.6.2.8 Camera Image Formats
+cameraImageFormat  OBJECT-TYPE
+SYNTAX  BITMAP32
+ACCESS  read-only
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> Defines the types of image formats that the machine vision camera supports.
+<Format>
+bit 0       0 = NO, 1 = YES         Indicates that the machine vision camera
+                                    supports bitmap imagery;
+bit 1       0 = NO, 1 = YES         Indicates that the machine vision camera
+                                    supports JPEG imagery;
+bits 2..31                          Reserved.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.2.1.8"
+::= { machineVisionCameraEntry 8 }
+
+-- 1.6.3 Image Zone Number
+imageZoneNumber  OBJECT-TYPE
+SYNTAX  INTEGER (0..255)
+ACCESS  read-write
+STATUS  optional
+DESCRIPTION
+"<Definition> The numerical label or number representing the sensor zone number that is associated with the image. A value of zero (0) indicates that no sensor zone number is selected. When read, this data element returns the last value written.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.3"
+::= { tssMachineVision 3 }
+
+-- 1.6.4 Image Type
+imageType  OBJECT-TYPE
+SYNTAX  INTEGER {
+                 snapshot (1),
+                 baseline (2) }
+ACCESS  read-write
+STATUS  mandatory
+DESCRIPTION 
+"<Definition> This data element set the type of image to generate:  
+            Snapshot(1) - Snapshot indicates to capture a current image to
+            transmit;
+            Baseline(2) - Baseline indicates to use the baseline image used
+            to set up the system for transfer.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.4"
+::= { tssMachineVision 4 }
+
+-- 1.6.5 Image Overlay Type
+imageOverlayType  OBJECT-TYPE
+SYNTAX  INTEGER {
+                 none (1),
+                 thisZone (2),
+                 allZones (3),
+                 defaultOverlay (4) }
+ACCESS  read-write
+STATUS  optional
+DESCRIPTION 
+"<Definition> This data element sets the type of image overlay to generate:  
+            none(1) - No overlay is generated in to the image;
+            thisZone(2) - Indicates that an overlay is generated in the
+            image indicating the location of this zone. The overlay specifics
+            are manufacturer dependent;
+            allZones(3) - Indicates that an overlay is generated in the
+            image indicating the location of all zones associated with the
+            camera. The overlay specifics are manufacturer dependent;
+            defaultOverlay(4) - Indicates the manufacturer generates its
+            default overlay in to the image.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.5"
+::= { tssMachineVision 5 }
+
+-- 1.6.6 Image Format
+imageFormat  OBJECT-TYPE
+SYNTAX  INTEGER { 
+                 bitmap (1),
+                 jpeg (2) }
+ACCESS  read-write
+STATUS  optional
+DESCRIPTION
+"<Definition> Identifies what format to return the machine vision camera image in.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.6"
+::= { tssMachineVision 6 }
+
+-- 1.6.7 Image Quality
+imageQuality  OBJECT-TYPE
+SYNTAX  INTEGER (1..100)
+ACCESS  read-write
+STATUS  optional
+DESCRIPTION
+"<Definition> This data element is used to select the image quality. The meaning varies based on the Image Format. A value of 100 selects the highest quality available. A value of 1 selects the lowest quality available. Lower quality may mean smaller more compressed images. Some image formats do not support variable image quality so the value is ignored. If a manufacturer supports only two image qualities for a specific image format then values 1 to 50 should select the lower quality while values 51 to 100 should select the higher quality.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.7"
+::= { tssMachineVision 7 }
+
+-- 1.6.8 Build Image
+buildImageCmd  OBJECT-TYPE
+SYNTAX  INTEGER {
+                 buildImage (1),
+                 cancelBuildInProgress (2) }
+ACCESS  read-write
+STATUS  optional
+DESCRIPTION 
+"<Definition> Writing the value buildImage to this data element commands the sensor to build an image based on the preceding parameters. A read of this data element always returns the last written. Values for this command are:
+            buildImage(1) - This command shall cause the unit to build an
+            image that can be read.
+            cancelBuildInProgress(2) - This command shall cause the unit to
+            cancel the current building process.
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.8"
+::= { tssMachineVision 8 }
+
+-- 1.6.9  Build Image Status
+buildImageStatus  OBJECT-TYPE
+SYNTAX  INTEGER {
+                 noImage (1),
+                 buildingImage (2),
+                 imageReady (3),
+                 genericError (4),
+                 invalidParameter (5),
+                 noCameraForZone (6),
+                 multipleCamerasForZone (7),
+                 imageReceiveError (8),
+                 buildPending (9) }
+ACCESS  read-only
+STATUS  optional
+DESCRIPTION 
+"<Definition> Reading the value buildImageStatus from this data element yields the status of the current image to be read:
+            noImage(1) - No Image is available for reading. This is the
+            initial state if the buildImageCmd command has not been issued;
+            buildingImage(2) - The sensor is in the progress of building the
+            image. It is not ready yet;
+            imageReady(3) - The image is ready for transfer. The last build
+            command completed successfully;
+            genericError(4) - An error occurred generating an image and
+            there is not a more descriptive status code available to describe
+            it;
+            invalidParameter(5) - One of the Image Setup Data parameters is
+            invalid;
+            noCameraForZone(6) - The zone selected does not have a camera
+            associated with it;
+            multipleCamerasForZone(7) - There is more than one camera
+            associated with the zone. To build an image you must select a
+            zone with one and only one camera;
+            imageReceiveError(8) - The sensor is having trouble receiving an
+            image from its camera. This could be bad sync or other
+            transmission problems;
+            buildPending(9) - The sensor cannot begin the requested build
+            at this time. The build begins when the blocking condition
+            was ended. This can occur if the current image is in use (e.g.,
+            being transferred).
+<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.9"
+::= { tssMachineVision 9 }
+
+END
