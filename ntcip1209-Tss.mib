@@ -1,8 +1,45 @@
+-- To the extent that these materials are distributed by AASHTO / ITE / NEMA 
+-- in the form of a Data Dictionary (DD) or Management Information Base 
+-- (MIB), AASHTO / ITE / NEMA extend the following permission:
+
+-- You may make or distribute unlimited copies, including derivative works, 
+-- of the DD or MIB, including copies for commercial distribution, provided 
+-- that:
+
+-- a)	each copy you make or distribute includes the citation Derived from 
+--    NTCIP 0000 [insert the standard number]. Copyright by AASHTO / ITE / 
+--    NEMA. Used by permission.;
+-- b)	the copies are not edited from the published version of this document. 
+
+-- These materials are delivered AS IS without any warranties as to their 
+-- use or performance.
+
+-- AASHTO / ITE / NEMA and their suppliers do not warrant the performance or 
+-- results you may obtain by using these materials. AASHTO / ITE / NEMA and 
+-- their suppliers make no warranties, express or implied, as to 
+-- noninfringement of third party rights, merchantability, or fitness for any
+--  particular purpose. In no event will AASHTO / ITE / NEMA or their 
+-- suppliers be liable to you or any third party for any claim or for any 
+-- consequential, incidental or special damages, including any lost profits 
+-- or lost savings, arising from your reproduction or use of these materials, 
+-- even if an AASHTO / ITE / NEMA representative has been advised of the 
+-- possibility of such damages.
+
+-- Some states or jurisdictions do not allow the exclusion or limitation of 
+-- incidental, consequential, or special damages, or the exclusion of implied 
+-- warranties, so the above limitations may not apply to a given user.
+
+-- Use of these materials does not constitute an endorsement or affiliation 
+-- by or between AASHTO, ITE, or NEMA and the user, the users company, or 
+-- the products and services of the users company.
+
+-- If the user is unwilling to accept the foregoing restrictions, he or she 
+--should immediately return these materials.
+
 -- 5.1 TRANSPORTATION SENSOR SYSTEM OBJECTS 
 NTCIP1209-Tss  DEFINITIONS::= BEGIN
 IMPORTS
-MODULE-IDENTITY, OBJECT-IDENTITY, OBJECT-TYPE, Integer32, Unsigned32, 
-TimeTicks
+MODULE-IDENTITY, OBJECT-IDENTITY, OBJECT-TYPE, Integer32, Unsigned32
                                                FROM SNMPv2-SMI
                                                  -- RFC 2578  
 TEXTUAL-CONVENTION, TruthValue
@@ -45,30 +82,29 @@ tss MODULE-IDENTITY
   DESCRIPTION
     "NTCIP 1209:2005 (v01) - Original version."
   ::= { devices 4 }
-  
+
 -- Additional textual conventions for v01 and v02 that have since been 
 -- deprecated.
-BITMAP64 ::= TEXTUAL-CONVENTION
+TssBitmap64  ::= TEXTUAL-CONVENTION
+  DISPLAY-HINT "1x "
   STATUS       deprecated
-  DESCRIPTION
-   "A 64-bit bitstring where bits are numbered from Bit 0 to Bit 7 of the first
-    octet followed by Bit 0 to Bit 7 of the second octet, and so on."
-  SYNTAX OCTET STRING (SIZE (8))
-  
-BITMAP96 ::= TEXTUAL-CONVENTION
-  STATUS       deprecated
-  DESCRIPTION
-   "A 96-bit bitstring where bits are numbered from Bit 0 to Bit 7 of the first
-    octet followed by Bit 0 to Bit 7 of the second octet, and so on."
-  SYNTAX OCTET STRING (SIZE (12))
-  
-BITMAP256 ::= TEXTUAL-CONVENTION
-  STATUS       deprecated
-  DESCRIPTION
-   "A 256-bit bitstring where bits are numbered from Bit 0 to Bit 7 of the
-    first octet followed by Bit 0 to Bit 7 of the second octet, and so on."
-  SYNTAX OCTET STRING (SIZE (32))
+  DESCRIPTION "An 8-octet bit string whose bit ordering proved confusing to 
+    implementers."
+  SYNTAX  OCTET STRING (SIZE (8))
 
+TssBitmap96  ::= TEXTUAL-CONVENTION
+  DISPLAY-HINT "1x "
+  STATUS       deprecated
+  DESCRIPTION "An 12-octet bit string whose bit ordering proved confusing to 
+    implementers."
+  SYNTAX  OCTET STRING (SIZE (12))
+
+TssBitmap256  ::= TEXTUAL-CONVENTION
+  DISPLAY-HINT "1x "
+  STATUS       deprecated
+  DESCRIPTION "An 32-octet bit string whose bit ordering proved confusing to 
+    implementers."
+  SYNTAX  OCTET STRING (SIZE (32))
 -- 5.2 SENSOR CONFIGURATION AND CAPABILITY OBJECTS
 tssSystemSetup OBJECT-IDENTITY 
 STATUS  current
@@ -95,13 +131,17 @@ SYNTAX  INTEGER {
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION
-"<Definition> A software interface to initiate a reset of various functions of the TSS. Upon receiving a request to set this object, the TSS shall follow the state transition rules defined in Section 4.3.1. Upon completing the processing of a successful set, the TSS shall transition the value of this object back to 'noResetInProgress'.
+"<Definition> A software interface to initiate a reset of various functions of
+the TSS. Upon receiving a request to set this object, the TSS shall follow the
+state transition rules defined in Section 4.3.1. Upon completing the processing
+of a successful set, the TSS shall transition the value of this object back to
+'noResetInProgress'.
 The reset values are described as follows:
       restart(1) - This command shall cause the unit to enter restart state
       and go through a complete shut-down and start-up process, causing a
       reset and initialization of the number of seconds since most recent
       TSS initialization to a value of zero.
-      reinitializeUserSettings(2) ? This command shall cause the unit to 
+      reinitializeUserSettings(2) - This command shall cause the unit to 
       flush all memory and reinitialize all settings to their user-defined 
       default values, and reset and initialize the number of seconds since 
       most recent TSS initialization to a value of zero.
@@ -109,35 +149,35 @@ The reset values are described as follows:
       all memory, restore all settings to their factory default values, and
       reset and initialize the number of seconds since most recent TSS
       initialization to a value of zero.
-      retune(4) ? This command recalibrates unit background settings for all
+      retune(4) - This command recalibrates unit background settings for all
       zones without resetting or flushing of any collected data.
-      resyncSamplingPeriods(5) ? This command shall cause the unit to
+      resyncSamplingPeriods(5) - This command shall cause the unit to
       synchronize all startup sampling period clocks within one (1) second of
       receiving the command and a reset and initialize of the number of
       seconds since most recent TSS initialization to a value of zero.
-      shortDiagnostics(6) ? This command shall cause the unit to go through
+      shortDiagnostics(6) - This command shall cause the unit to go through
       an abbreviated vendor-specific diagnostic routine which may be the same
       as full diagnostics for some vendors.
-      fullDiagnostics(7) ? This command shall cause the unit to go through
+      fullDiagnostics(7) - This command shall cause the unit to go through
       a complete vendor-specific diagnostic routine which may be the same as
       short diagnostics for some vendors, causing a reset and initialization
       of the number of seconds since most recent TSS initialization to a
       value of zero.
-      executePendingConfiguration(8) ? The behavior of this command is
+      executePendingConfiguration(8) - The behavior of this command is
       dependent upon type of configuration file uploaded and is manufacturer-
       specific. Execution may result in a system reboot, reinitialization,
       and loss of historical data.
-      abortPendingConfiguration(9) ? This command shall cause the TSS
+      abortPendingConfiguration(9) - This command shall cause the TSS
       to cancel the currently pending configuration changes.
-      validatePendingConfiguration(10) ? This command is used to check the
+      validatePendingConfiguration(10) - This command is used to check the
       configuration to ensure that it is a valid configuration file.
-      noResetInProgress(11) ? No command is in-progress. The TSS shall 
+      noResetInProgress(11) - No command is in-progress. The TSS shall 
       automatically transition this object back to this state upon 
       completion of the requested command. This value is read-only.
 <Parameter Type> Control
-<Informative> The value ?restart? (1) was deprecated in v03 in favor of using 
+<Informative> The value 'restart' (1) was deprecated in v03 in favor of using 
   fdCtrlReset. If the value 1 is supported, it shall act the same as setting 
-  fdCtrlReset to ?true?.
+  fdCtrlReset to 'true'.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.1"
 ::= { tssSystemSetup 1 }
 
@@ -155,7 +195,8 @@ SYNTAX  INTEGER {
 MAX-ACCESS  read-only
 STATUS  current
 DESCRIPTION
-"<Definition> This data element provides an indication of the overall sensor system status, as follows:
+"<Definition> This data element provides an indication of the overall sensor
+system status, as follows:
       other(1) - Indicates the presence of a hardware or software status that
       is not described by any other valid value of this object.
       oK(2) - Indicates that the unit is operating normally with no known
@@ -212,7 +253,8 @@ SYNTAX  Integer32 (1..255)
 MAX-ACCESS  read-only
 STATUS  current
 DESCRIPTION 
-"<Definition> Indicates the maximum number of sensor zones supported by this TSS.
+"<Definition> Indicates the maximum number of sensor zones supported by this
+TSS.
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.4"
 ::= { tssSystemSetup 4 }
@@ -223,7 +265,9 @@ SYNTAX  SEQUENCE OF SensorZoneEntry
 MAX-ACCESS  not-accessible
 STATUS  current
 DESCRIPTION 
-"<Definition> A table containing sensor zone unit parameters. The number of rows in this table is equal to the maxSensorZones data element. Table rows are set by the manufacturer, and row creation/deletion is not supported.
+"<Definition> A table containing sensor zone unit parameters. The number of
+rows in this table is equal to the maxSensorZones data element. Table rows are
+set by the manufacturer, and row creation/deletion is not supported.
 <TableType> static
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5"
 ::= { tssSystemSetup 5}
@@ -266,7 +310,9 @@ SYNTAX  Integer32 (1..255)
 MAX-ACCESS  read-only
 STATUS  current
 DESCRIPTION 
-"<Definition> The numerical label or number of the sensor zone. This value shall not exceed the maxSensorZones data element value. sensorZoneNumber is used as an index for various data element tables.
+"<Definition> The numerical label or number of the sensor zone. This value
+shall not exceed the maxSensorZones data element value. sensorZoneNumber is
+used as an index for various data element tables.
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.1"
 ::= { sensorZoneEntry 1 }
@@ -277,12 +323,18 @@ SYNTAX   ITSBitmap (SIZE(1))
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION 
-"<Definition> A bit-mapped value indicating whether each identified option is configured to be enabled. A non-configured system shall default all options to disabled. Any attempt to set a value that sets a reserved bit shall be rejected.
+"<Definition> A bit-mapped value indicating whether each identified option is
+configured to be enabled. A non-configured system shall default all options to
+disabled. Any attempt to set a value that sets a reserved bit shall be
+rejected.
 <Format>
 Bit 0      Enable this sensor zone
 Bits 1..7  Reserved
 <Parameter Type> Configuration 
-<Informative> v03 updated the syntax and bit numbering to be consistent with SNMP conventions but the encoded representation is identical to what was defined in v02 (i.e., the data is encoded in the high-order bits). See NTCIP 8004 v03, 4.5.3 for more information about the encoding of bitstrings.
+<Informative> v03 updated the syntax and bit numbering to be consistent with
+SNMP conventions but the encoded representation is identical to what was
+defined in v02 (i.e., the data is encoded in the high-order bits). See NTCIP
+8004 v03, 4.5.3 for more information about the encoding of bitstrings.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.2"
 ::= { sensorZoneEntry 2 }
 
@@ -292,12 +344,23 @@ SYNTAX  ITSBitmap (SIZE(1))
 MAX-ACCESS  read-only
 STATUS  current
 DESCRIPTION 
-"<Definition> A bit-mapped value indicating the status of whether each identified option is enabled. This value can be different than sensorZoneOptions if the sensor has automatically disabled a zone. Example: The TSS is a camera that has Pan/Tilt/Zoom control and the camera is temporarily moved for a surveillance operation. For each zone associated with this camera, Bit 0 of sensorZoneOptionsStatus would remain or become 'diabled' (0) while Bit 0 of sensorZoneOptions would not change. Upon returning the camera to its sensing position, the TSS would attempt to apply the state requested by sensorZoneOptions (assuming all conditions are met for the camera). 
+"<Definition> A bit-mapped value indicating the status of whether each
+identified option is enabled. This value can be different than
+sensorZoneOptions if the sensor has automatically disabled a zone. Example: The
+TSS is a camera that has Pan/Tilt/Zoom control and the camera is temporarily
+moved for a surveillance operation. For each zone associated with this camera,
+Bit 0 of sensorZoneOptionsStatus would remain or become 'diabled' (0) while Bit
+0 of sensorZoneOptions would not change. Upon returning the camera to its
+sensing position, the TSS would attempt to apply the state requested by
+sensorZoneOptions (assuming all conditions are met for the camera). 
 <Format>
 Bit 0     Status of this sensor zone;
 Bits 1..7 Reserved
 <Parameter Type> Status 
-<Informative> v03 updated the syntax and bit numbering to be consistent with SNMP conventions but the encoded representation is identical to what was defined in v02 (i.e., the data is encoded in the high-order bits). See NTCIP 8004 v03, 4.5.3 for more information about the encoding of bitstrings.
+<Informative> v03 updated the syntax and bit numbering to be consistent with
+SNMP conventions but the encoded representation is identical to what was
+defined in v02 (i.e., the data is encoded in the high-order bits). See NTCIP
+8004 v03, 4.5.3 for more information about the encoding of bitstrings.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.3"
 ::= { sensorZoneEntry 3 }
 
@@ -308,7 +371,11 @@ UNITS   "seconds"
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION 
-"<Definition> Duration of the sample period in seconds for the sensor zone over which time data is collected. Sample period durations from 0 to 3600 are available for use. Values from 3601 to 65535 are reserved for future use. A sampling period of zero (0) means that data is not being collected, while the sensor zone may continue to be enabled.
+"<Definition> Duration of the sample period in seconds for the sensor zone over
+which time data is collected. Sample period durations from 0 to 3600 are
+available for use. Values from 3601 to 65535 are reserved for future use. A
+sampling period of zero (0) means that data is not being collected, while the
+sensor zone may continue to be enabled.
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.4"
 DEFVAL { 0 }
@@ -320,9 +387,12 @@ SYNTAX     SnmpAdminString
 MAX-ACCESS read-write
 STATUS     current
 DESCRIPTION 
-"<Definition> A text string used to describe the TSS sensor zone. A maximum string length of less than 255 may be supported.
+"<Definition> A text string used to describe the TSS sensor zone. A maximum
+string length of less than 255 may be supported.
 <Parameter Type> Configuration 
-<Informative> Prior to v03, the syntax contained a typo implying that labels shorter than 8 octets were not allowed; as such, such values might be rejected by some implementations.
+<Informative> Prior to v03, the syntax contained a typo implying that labels
+shorter than 8 octets were not allowed; as such, such values might be rejected
+by some implementations.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.5"
 ::= { sensorZoneEntry 5 }
 
@@ -332,13 +402,19 @@ SYNTAX  ITSUByteString (SIZE (8))
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION
-"<Definition> This data element identifies up to eight (8) unique zones that can be sequentially combined with a Boolean AND command to provide an input to this zone, as follows:
+"<Definition> This data element identifies up to eight (8) unique zones that
+can be sequentially combined with a Boolean AND command to provide an input to
+this zone, as follows:
 <Format>
-Each octet indicates the sensorZoneNumber of a sensor zone input that is to be combined with the input for this zone using Boolean AND logic. An octet with a value of zero (0) indicates that no sensor zone is assigned for that entry.
+Each octet indicates the sensorZoneNumber of a sensor zone input that is to be
+combined with the input for this zone using Boolean AND logic. An octet with a
+value of zero (0) indicates that no sensor zone is assigned for that entry.
 
-Boolean AND combinations are processed before Boolean OR combinations. When read, this object returns last value written.
+Boolean AND combinations are processed before Boolean OR combinations. When
+read, this object returns last value written.
 <Parameter Type> Configuration 
-<Informative> v03 updated the syntax but the encoded representation is identical to what was defined in v02.
+<Informative> v03 updated the syntax but the encoded representation is
+identical to what was defined in v02.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.6"
 ::= { sensorZoneEntry 6 }
 
@@ -348,13 +424,19 @@ SYNTAX  ITSUByteString (SIZE (8))
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION
-"<Definition> This data element identifies up to eight (8) unique zones that can be sequentially combined with a Boolean OR command to provide an input to this zone, as follows:
+"<Definition> This data element identifies up to eight (8) unique zones that
+can be sequentially combined with a Boolean OR command to provide an input to
+this zone, as follows:
 <Format>
-Each octet indicates the sensorZoneNumber of a sensor zone input that is to be combined with the input for this zone using Boolean OR logic. An octet with a value of zero (0) indicates that no sensor zone is assigned for that entry.
+Each octet indicates the sensorZoneNumber of a sensor zone input that is to be
+combined with the input for this zone using Boolean OR logic. An octet with a
+value of zero (0) indicates that no sensor zone is assigned for that entry.
 
-Boolean AND combinations are processed before Boolean OR combinations. When read, this object returns last value written.
+Boolean AND combinations are processed before Boolean OR combinations. When
+read, this object returns last value written.
 <Parameter Type> Configuration 
-<Informative> v03 updated the syntax but the encoded representation is identical to what was defined in v02.
+<Informative> v03 updated the syntax but the encoded representation is
+identical to what was defined in v02.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.7"
 ::= { sensorZoneEntry 7 }
 
@@ -364,7 +446,10 @@ SYNTAX  Integer32 (0..255)
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION
-"<Definition> This indicates the sensorZoneNumber of a paired zone that provides additional information to the current zone for features that require a sequenced second zone to determine direction of travel or time of travel (e.g., speed trap, wrong way, etc.)
+"<Definition> This indicates the sensorZoneNumber of a paired zone that
+provides additional information to the current zone for features that require a
+sequenced second zone to determine direction of travel or time of travel (e.g.,
+speed trap, wrong way, etc.)
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.8"
 ::= { sensorZoneEntry 8 }
@@ -375,7 +460,8 @@ SYNTAX  ITSBitmap (SIZE (1))
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION
-"<Definition> A bit-mapped value as defined below for indicating the status of the options for a paired zone.
+"<Definition> A bit-mapped value as defined below for indicating the status of
+the options for a paired zone.
 <Format>
 Bit 7  Zone Placement: ON indicates that this is the leading zone of the pair 
                       OFF indicates that this is a trailing zone of the pair.
@@ -384,7 +470,10 @@ Bit 6  Single Zone Speed Mode: If there is an error on either paired zone:
             ON: speed is calculated using the formula:
             (sensorZoneAvgVehicleLength + sensorZoneLength) / Detect Time (s)
 Bit 5..0 Reserved 
-<Informative> v03 updated the syntax and bit numbering to be consistent with SNMP conventions but the encoded representation is identical to what was defined in v02 (i.e., the data is encoded in the high-order bits). See NTCIP 8004 v03, 4.5.3 for more information about the encoding of bitstrings.
+<Informative> v03 updated the syntax and bit numbering to be consistent with
+SNMP conventions but the encoded representation is identical to what was
+defined in v02 (i.e., the data is encoded in the high-order bits). See NTCIP
+8004 v03, 4.5.3 for more information about the encoding of bitstrings.
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.9"
 ::= { sensorZoneEntry 9 }
@@ -396,7 +485,9 @@ UNITS   "centimeters"
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION
-"<Definition> This parameter allows the user to set the spacing between paired zones for use in calculating vehicle speeds. This parameter is usually measured from the leading edge of one zone to the leading edge of the paired zone. 
+"<Definition> This parameter allows the user to set the spacing between paired
+zones for use in calculating vehicle speeds. This parameter is usually measured
+from the leading edge of one zone to the leading edge of the paired zone. 
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.10"
 ::= { sensorZoneEntry 10 }
@@ -408,7 +499,9 @@ UNITS   "one-thousandth of a percent"
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION
-"<Definition> This is a percent multiplier for speed calculations within the TSS that is used to fine tune the accuracy of the reported speed. A setting of 1000 would be a multiplier of 1.000.
+"<Definition> This is a percent multiplier for speed calculations within the
+TSS that is used to fine tune the accuracy of the reported speed. A setting of
+1000 would be a multiplier of 1.000.
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.11"
 ::= { sensorZoneEntry 11 }
@@ -420,7 +513,9 @@ UNITS   "centimeters"
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION
-"<Definition> This parameter allows the user to set the average vehicle length for use in determining speed and classification. This allows for a range of lengths between 0.01 meters to 40 meters in length.
+"<Definition> This parameter allows the user to set the average vehicle length
+for use in determining speed and classification. This allows for a range of
+lengths between 0.01 meters to 40 meters in length.
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.12"
 ::= { sensorZoneEntry 12}
@@ -432,7 +527,9 @@ UNITS   "centimeters"
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION
-"<Definition> This parameter allows the user to set the length of the sensor zone. The value of 65535 shall be returned to represent no zone length set. This allows for a range of lengths between 0.01 meters to 40 meters in length.
+"<Definition> This parameter allows the user to set the length of the sensor
+zone. The value of 65535 shall be returned to represent no zone length set.
+This allows for a range of lengths between 0.01 meters to 40 meters in length.
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.13"
 ::= { sensorZoneEntry 13 }
@@ -482,7 +579,9 @@ DESCRIPTION
       pairedZoneFault(14) - Indicates that there was no problem with this
       zone, but a zone that it is paired with had a fault. This may affect
       the accuracy of data reported by this zone.
-If a condition occurs during the sample period, then that state remains for the duration of that sample period. If multiple conditions occur during a sample period, the last reported condition, other than OK, is retained.
+If a condition occurs during the sample period, then that state remains for the
+duration of that sample period. If multiple conditions occur during a sample
+period, the last reported condition, other than OK, is retained.
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.14"
 ::= { sensorZoneEntry 14 }
@@ -494,7 +593,10 @@ UNITS   "seconds"
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION
-"<Definition> Time period in seconds for the sensor zone during which, if there is no activity for the zone, a No Activity status is generated for the zone. A no activity fault time of zero (0) means that a no activity status cannot be generated for this sensor zone.
+"<Definition> Time period in seconds for the sensor zone during which, if there
+is no activity for the zone, a No Activity status is generated for the zone. A
+no activity fault time of zero (0) means that a no activity status cannot be
+generated for this sensor zone.
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.15"
 DEFVAL { 0 }
@@ -507,7 +609,10 @@ UNITS   "seconds"
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION
-"<Definition> Time period in seconds for the sensor zone during which, if there is constant activity for the zone, a Max Presence status is generated for the zone. A max presence fault time of zero (0) means that a max presence status cannot be generated for this sensor zone.
+"<Definition> Time period in seconds for the sensor zone during which, if there
+is constant activity for the zone, a Max Presence status is generated for the
+zone. A max presence fault time of zero (0) means that a max presence status
+cannot be generated for this sensor zone.
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.16"
 DEFVAL { 0 }
@@ -520,7 +625,10 @@ UNITS   "seconds"
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION
-"<Definition> Time period in seconds for the sensor zone during which, if the Erratic Counts Threshold is created for the zone, an Erratic Counts status is generated for the zone. An erratic counts fault time of zero (0) means that an erratic counts status cannot be generated for this sensor zone.
+"<Definition> Time period in seconds for the sensor zone during which, if the
+Erratic Counts Threshold is created for the zone, an Erratic Counts status is
+generated for the zone. An erratic counts fault time of zero (0) means that an
+erratic counts status cannot be generated for this sensor zone.
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.17"
 DEFVAL { 0 }
@@ -533,7 +641,10 @@ UNITS   "actuations"
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION
-"<Definition> The number of actuations that if met or exceeded within the Erratic Counts Fault Time, an Erratic Counts status is generated for the zone. An erratic counts threshold of zero (0) means that an erratic counts status cannot be generated for this sensor zone.
+"<Definition> The number of actuations that if met or exceeded within the
+Erratic Counts Fault Time, an Erratic Counts status is generated for the zone.
+An erratic counts threshold of zero (0) means that an erratic counts status
+cannot be generated for this sensor zone.
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.5.1.18"
 DEFVAL { 0 }
@@ -569,15 +680,19 @@ SYNTAX  INTEGER {
 MAX-ACCESS  read-only
 STATUS  deprecated
 DESCRIPTION 
-"<Definition> Indicates availability of a real time clock within the TSS so that time can be referenced to CTime.
+"<Definition> Indicates availability of a real time clock within the TSS so
+that time can be referenced to CTime.
       clockYes(1) - A real time clock is provided within the TSS,
-      conformant with the applicable requirements for managing time in NTCIP 1201 v03, and time is referenced to actual local time within the device.
+      conformant with the applicable requirements for managing time in NTCIP
+1201 v03, and time is referenced to actual local time within the device.
       clockNo(2) - A real time clock is not provided within the TSS and
       time is expressed in the number of seconds since most recent TSS
       initialization.
 <Parameter Type> Status 
 <Withdrawn>
-<Informative> This object was deprecated in NTCIP 1209 v03 due to the migration from NTCIP 1201 v03 to ISO 26048-1. The functionality of this object can be achieved in the new design by checking on the existance of fdClockLocalTime.
+<Informative> This object was deprecated in NTCIP 1209 v03 due to the migration
+from NTCIP 1201 v03 to ISO 26048-1. The functionality of this object can be
+achieved in the new design by checking on the existance of fdClockLocalTime.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.6"
 ::= { tssSystemSetup 6 }
 
@@ -611,7 +726,8 @@ UNITS   "entries"
 MAX-ACCESS  read-only
 STATUS  current
 DESCRIPTION
-"<Definition> Indicates the maximum number of historical data entries per zone supported by the TSS.
+"<Definition> Indicates the maximum number of historical data entries per zone
+supported by the TSS.
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.8"
 ::= { tssSystemSetup 8 }
@@ -623,9 +739,11 @@ UNITS   "octets"
 MAX-ACCESS  read-only
 STATUS  current
 DESCRIPTION
-"<Definition> The maximum number of octets in any identifier label that the TSS supports. 
+"<Definition> The maximum number of octets in any identifier label that the TSS
+supports. 
 <Parameter Type> Status 
-<Informative> If the label uses only NVT-ASCII characters, this is equal to the number of characters.
+<Informative> If the label uses only NVT-ASCII characters, this is equal to the
+number of characters.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.9"
 ::= { tssSystemSetup 9 } 
 
@@ -635,25 +753,41 @@ SYNTAX  ITSBitmap (SIZE (1))
 MAX-ACCESS  read-only
 STATUS  current
 DESCRIPTION
-"<Definition> A bit-mapped value as defined below for identifying the functional capabilities of the TSS.
+"<Definition> A bit-mapped value as defined below for identifying the
+functional capabilities of the TSS.
 <Format>
 bit 7       Sampling Features
 bit 6       Timing Features
 bit 5       Speed Features
 bits  0..4  Reserved
 <Parameter Type> Status 
-<Informative> v03 updated the syntax and bit numbering to be consistent with SNMP conventions but the encoded representation is identical to what was defined in v02 (i.e., the data is encoded in the high-order bits). See NTCIP 8004 v03, 4.5.3 for more information about the encoding of bitstrings.
+<Informative> v03 updated the syntax and bit numbering to be consistent with
+SNMP conventions but the encoded representation is identical to what was
+defined in v02 (i.e., the data is encoded in the high-order bits). See NTCIP
+8004 v03, 4.5.3 for more information about the encoding of bitstrings.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.10"
 ::= { tssSystemSetup 10 }
 
 -- 5.2.11 External Arming Inputs
 externalArmingInputs  OBJECT-TYPE
-SYNTAX  BITMAP64
+SYNTAX  TssBitmap64
 MAX-ACCESS  read-write
 STATUS  deprecated
 DESCRIPTION
-"<Definition> This allows other devices to modify the states of the Arming Input Bits used by the TSS. There are separate clears and sets so that multiple TSSs could maintain the states of individual Arming Input Bits. It is envisioned that the first 24 bits would correspond to the Greens, Yellows, and Reds of phases 1 through 8 from the traffic signal controller. The last 8 bits would be used for other phases, overlaps, or special functions. If the Arming Pin inputs are DC then a low input is an ON and a high input is an OFF. If the Arming Pin inputs are AC then a low input is an OFF and a high input is an ON.
-An attempt to write to this object with a value that has an Arming Input configured to both Clear and Set (e.g., Bit 0 of Byte 1 and Byte 5 are set) shall cause the Arming Input bit to clear (i.e, clear overrides set). A read of this object shall indicate ?1? for the Clear bit and a ?0? for the Set bit for each Arming Input that is OFF and shall indicate ?0? for the Clear bit and a ?1? for the Set bit for each Arming Input that is ON. 
+"<Definition> This allows other devices to modify the states of the Arming
+Input Bits used by the TSS. There are separate clears and sets so that multiple
+TSSs could maintain the states of individual Arming Input Bits. It is
+envisioned that the first 24 bits would correspond to the Greens, Yellows, and
+Reds of phases 1 through 8 from the traffic signal controller. The last 8 bits
+would be used for other phases, overlaps, or special functions. If the Arming
+Pin inputs are DC then a low input is an ON and a high input is an OFF. If the
+Arming Pin inputs are AC then a low input is an OFF and a high input is an ON.
+An attempt to write to this object with a value that has an Arming Input
+configured to both Clear and Set (e.g., Bit 0 of Byte 1 and Byte 5 are set)
+shall cause the Arming Input bit to clear (i.e, clear overrides set). A read of
+this object shall indicate '1' for the Clear bit and a '0' for the Set bit for
+each Arming Input that is OFF and shall indicate '0' for the Clear bit and a
+'1' for the Set bit for each Arming Input that is ON. 
 <Format>
 byte 1      Bit 0 = Clear Arming Input bit 1,
             Bit 1 = Clear Arming Input bit 2,
@@ -720,8 +854,9 @@ byte 8      Bit 0 = Set Arming Input bit 25,
             Bit 6 = Set Arming Input bit 31,
             Bit 7 = Set Arming Input bit 32,
 <Parameter Type> Configuration 
-<Superseded by> externalArmingInputsV3  
-<Informative> This object was deprecated due to confusion about the bit ordering. See D.3.1 for more details.
+<Superseded by> externalArmingInputsV3 and externalArmingBitStatus  
+<Informative> This object was deprecated due to confusion about the bit
+ordering. See D.3.1 for more details.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.11"
 ::= { tssSystemSetup 11 }
 
@@ -733,7 +868,10 @@ SYNTAX  SEQUENCE OF OutputConditioningEntry
 MAX-ACCESS  not-accessible
 STATUS  current
 DESCRIPTION
-"<Definition> Each table row contains objects for configuring detector sensor zone outputs. The number of rows in this table is equal to maxSensorZones. Table rows are set by the manufacturer, and row creation/deletion is not supported.
+"<Definition> Each table row contains objects for configuring detector sensor
+zone outputs. The number of rows in this table is equal to maxSensorZones.
+Table rows are set by the manufacturer, and row creation/deletion is not
+supported.
 <TableType> static
 <Object Identifier 1.3.6.1.4.1.1206.4.2.4.1.12"
 ::= { tssSystemSetup 12 }
@@ -743,7 +881,8 @@ SYNTAX  OutputConditioningEntry
 MAX-ACCESS  not-accessible
 STATUS  current
 DESCRIPTION 
-"<Definition> Each table row contains inductive loop detector sensor zone output conditioning parameters. 
+"<Definition> Each table row contains inductive loop detector sensor zone
+output conditioning parameters. 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.12.1"
 
 INDEX { sensorZoneNumber }
@@ -754,10 +893,10 @@ OutputConditioningEntry ::= SEQUENCE {
       sensorZoneMaxPresenceTime        Integer32,
       sensorZoneOutputDelayTime        Integer32,
       sensorZoneOutputDelayMode        INTEGER,
-      sensorZoneOutputDelayEnables     BITMAP96,
+      sensorZoneOutputDelayEnables     TssBitmap96,
       sensorZoneOutputExtendTime       Integer32,
       sensorZoneOutputExtendMode       INTEGER,
-      sensorZoneOutputExtendEnables    BITMAP96,
+      sensorZoneOutputExtendEnables    TssBitmap96,
       sensorZoneOutputSequenced        Integer32 }
 
 -- 5.2.12.1 Zone Output Mode
@@ -770,13 +909,14 @@ SYNTAX  INTEGER {
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION 
-"<Definition> This object sets the length of the output during a detect condition. These detect outputs are described as follows:
+"<Definition> This object sets the length of the output during a detect
+condition. These detect outputs are described as follows:
       other(1) -  an output mode other than that defined in this list
       pulse(2) -  a pulse of 125ms (?25ms) is output when a vehicle is
       detected.
       presence(3) - the output lasts the duration of a detect condition
       or until the detector tunes out the detect signal.
-      Invalid(255) ?Something has invalid data.
+      Invalid(255) -Something has invalid data.
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.12.1.1"
 ::= { outputConditioningEntry 1 }
@@ -788,7 +928,10 @@ UNITS   "seconds"
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION 
-"<Definition> This object sets the maximum time that the zone holds presence before retuning. Values of 1 to 65534 seconds are available. A value of 0 disables this timer and prevents a sensor zone occupancy from being tuned out at the end of a specific time. A value of 65,535 represents invalid data.
+"<Definition> This object sets the maximum time that the zone holds presence
+before retuning. Values of 1 to 65534 seconds are available. A value of 0
+disables this timer and prevents a sensor zone occupancy from being tuned out
+at the end of a specific time. A value of 65,535 represents invalid data.
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.12.1.2"
 ::= { outputConditioningEntry 2 }
@@ -800,7 +943,10 @@ UNITS   "deciseconds"
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION 
-"<Definition> The output for the zone is delayed from start of sensor zone occupancy by the time specified (tenths of a second:  00.0 to 6553.5 sec). For the output to actually switch, the sensor zone occupancy is required to be continuous and still be present at the end of the delay time.
+"<Definition> The output for the zone is delayed from start of sensor zone
+occupancy by the time specified (tenths of a second:  00.0 to 6553.5 sec). For
+the output to actually switch, the sensor zone occupancy is required to be
+continuous and still be present at the end of the delay time.
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.12.1.3"
 REFERENCE
@@ -818,8 +964,9 @@ SYNTAX  INTEGER {
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION
-"<Definition> This parameter determines if and how the delay enables are used to modify the operation of the delay feature.
-      delayEnablesHaveNoEffect(1) ? The delay enables have no effect on the
+"<Definition> This parameter determines if and how the delay enables are used
+to modify the operation of the delay feature.
+      delayEnablesHaveNoEffect(1) - The delay enables have no effect on the
       delay feature of the zone.
       delayEnablesORedActive(2) - If any of the delay enables are active the
       delay feature is active, else the delay feature is not active.
@@ -835,11 +982,15 @@ DESCRIPTION
 
 -- 5.2.12.5 Zone Output Delay Enables
 sensorZoneOutputDelayEnables  OBJECT-TYPE
-SYNTAX     BITMAP96
+SYNTAX     TssBitmap96
 MAX-ACCESS read-write
 STATUS     deprecated
 DESCRIPTION
-"<Definition> This bit-mapped parameter identifies which Arming Pins, Arming Input Bits, and which state for each are to be used as enables for the delay feature. If the Arming Pin inputs are DC then a low input is an ON and a high input is an OFF. If the Arming Pin inputs are AC then a low input is an OFF and a high input is an ON.
+"<Definition> This bit-mapped parameter identifies which Arming Pins, Arming
+Input Bits, and which state for each are to be used as enables for the delay
+feature. If the Arming Pin inputs are DC then a low input is an ON and a high
+input is an OFF. If the Arming Pin inputs are AC then a low input is an OFF and
+a high input is an ON.
 <Format>
 byte 1      Bit 0 = Arming Pin 1 OFF,
             Bit 1 = Arming Pin 2 OFF,
@@ -939,7 +1090,9 @@ byte 12     Bit 0 = Arming Input bit 25 ON,
             Bit 7 = Arming Input bit 32 ON,
 <Parameter Type> Configuration 
 <Withdrawn>
-<Informative> This object has been withdrawn as it was determined that TSS should provide raw readings without delays applied. Further, this object used confusing bit ordering. See D.3.1 for more details.
+<Informative> This object has been withdrawn as it was determined that TSS
+should provide raw readings without delays applied. Further, this object used
+confusing bit ordering. See D.3.1 for more details.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.12.1.5"
 ::= { outputConditioningEntry 5 }
 
@@ -950,7 +1103,9 @@ UNITS   "deciseconds"
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION 
-"<Definition> The output for the zone is extended, after the end of the period in which the sensor zone is occupied, by the amount of time specified (tenths of a second: 00.0 to 6553.5 sec).
+"<Definition> The output for the zone is extended, after the end of the period
+in which the sensor zone is occupied, by the amount of time specified (tenths
+of a second: 00.0 to 6553.5 sec).
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.12.1.6"
 REFERENCE
@@ -968,7 +1123,8 @@ SYNTAX  INTEGER {
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION
-"<Definition> This parameter determines if and how the extend enables will be used to modify the operation of the extend feature. 
+"<Definition> This parameter determines if and how the extend enables will be
+used to modify the operation of the extend feature. 
       extendEnablesHaveNoEffect(1) - The extend enables have no effect on the
       extend feature of the zone.
       extendEnablesORedActive(2) - If any of the extend enables are active 
@@ -986,11 +1142,15 @@ DESCRIPTION
 
 -- 5.2.12.8 Zone Output Extend Enables
 sensorZoneOutputExtendEnables  OBJECT-TYPE
-SYNTAX     BITMAP96
+SYNTAX     TssBitmap96
 MAX-ACCESS read-write
 STATUS     deprecated
 DESCRIPTION
-"<Definition> This bit-mapped parameter identifies which Arming Pins, Arming Input Bits, and which state for each are to be used as enables for the extend feature. If the Arming Pin inputs are DC then a low input is an ON and a high input is an OFF. If the Arming Pin inputs are AC then a low input is an OFF and a high input is an ON.
+"<Definition> This bit-mapped parameter identifies which Arming Pins, Arming
+Input Bits, and which state for each are to be used as enables for the extend
+feature. If the Arming Pin inputs are DC then a low input is an ON and a high
+input is an OFF. If the Arming Pin inputs are AC then a low input is an OFF and
+a high input is an ON.
 <Format>
 byte 1      Bit 0 = Arming Pin 1 OFF,
             Bit 1 = Arming Pin 2 OFF,
@@ -1090,7 +1250,9 @@ byte 12     Bit 0 = Arming Input bit 25 ON,
             Bit 7 = Arming Input bit 32 ON,
 <Parameter Type> Configuration 
 <Withdrawn>
-<Informative> This object has been withdrawn as it was determined that TSS should provide raw readings without delays applied. Further, this object used confusing bit ordering. See D.3.1 for more details.
+<Informative> This object has been withdrawn as it was determined that TSS
+should provide raw readings without delays applied. Further, this object used
+confusing bit ordering. See D.3.1 for more details.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.12.1.8"
 ::= { outputConditioningEntry 8 }
 
@@ -1100,11 +1262,22 @@ SYNTAX  Integer32 (0..255)
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION
-"<Definition> This parameter identifies the sensorZoneNumber of an upstream directional zone. The output for this entry shall only become active if the zone is actuated when the upstream directional zone has an active output. The output for this entry shall not activate for any actuation (or during the subsequent occupancy) that occurs when the upstream directional zone does not have an active output. This entry shall report each new actuation that occurs while the upstream directional zone output remains active. 
+"<Definition> This parameter identifies the sensorZoneNumber of an upstream
+directional zone. The output for this entry shall only become active if the
+zone is actuated when the upstream directional zone has an active output. The
+output for this entry shall not activate for any actuation (or during the
+subsequent occupancy) that occurs when the upstream directional zone does not
+have an active output. This entry shall report each new actuation that occurs
+while the upstream directional zone output remains active. 
 <Parameter Type> Configuration 
-<Informative> This parameter allows the creation of directional detection. The intent is that the two zones are in close enough proximity that a vehicle is able to be detected by both zones and that the last zone to detect the vehicle is the one that activates its output.
+<Informative> This parameter allows the creation of directional detection. The
+intent is that the two zones are in close enough proximity that a vehicle is
+able to be detected by both zones and that the last zone to detect the vehicle
+is the one that activates its output.
 
-A report of an actuation may not result in an active output if other configuration parameters prevent the activation (e.g., an actuation with a occupancy that is shorter than sensorZoneOutputDelayTime).[KV2]
+A report of an actuation may not result in an active output if other
+configuration parameters prevent the activation (e.g., an actuation with a
+occupancy that is shorter than sensorZoneOutputDelayTime).
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.12.1.9"
 ::= { outputConditioningEntry 9 }
 
@@ -1114,10 +1287,12 @@ SYNTAX  OCTET STRING (SIZE(8..32))
 MAX-ACCESS  read-write
 STATUS  deprecated
 DESCRIPTION
-"<Definition> This identifies the name of the pending configuration file that is used by the TSS upon issuing the executePendingConfiguration command.
+"<Definition> This identifies the name of the pending configuration file that
+is used by the TSS upon issuing the executePendingConfiguration command.
 <Parameter Type> Configuration 
 <Withdrawn>
-<Informative> This functionality is expected to be addressed in a future edition of ISO 26048-1.
+<Informative> This functionality is expected to be addressed in a future
+edition of ISO 26048-1.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.13"
 ::= { tssSystemSetup 13}
 
@@ -1127,16 +1302,31 @@ SYNTAX  ITSBitmap (SIZE(8))
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION
-"<Definition> This allows other devices to modify the states of the Arming Input Bits used by the TSS. There are separate clears and sets so that individual Arming Input Bits can be managed by different management stations. While the inputs are physically configured within each deployment, it is envisioned that the first 24 bits will typically correspond to the Greens, Yellows, and Reds of phases 1 through 8 from the traffic signal controller leaving the remaining 8 bits for other phases, overlaps, or special functions. If the Arming Pin inputs are DC then a low input is an ON and a high input is an OFF. If the Arming Pin inputs are AC then a low input is an OFF and a high input is an ON.
-An attempt to write to this object with a value that has an Arming Input configured to both Clear and Set (e.g., Bits 0 and 32 are set) shall result in a ?wrongValue? error. A read of this object shall return the last value written. 
+"<Definition> This allows other devices to modify the states of the Arming
+Input Bits used by the TSS. There are separate clears and sets so that
+individual Arming Input Bits can be managed by different management stations.
+While the inputs are physically configured within each deployment, it is
+envisioned that the first 24 bits will typically correspond to the Greens,
+Yellows, and Reds of phases 1 through 8 from the traffic signal controller
+leaving the remaining 8 bits for other phases, overlaps, or special functions.
+If the Arming Pin inputs are DC then a low input is an ON and a high input is
+an OFF. If the Arming Pin inputs are AC then a low input is an OFF and a high
+input is an ON.
+An attempt to write to this object with a value that has an Arming Input
+configured to both Clear and Set (e.g., Bits 0 and 32 are set) shall result in
+a 'wrongValue' error. A read of this object shall return the last value
+written. 
 <Format>
 For Bits 0-31 of the ITSBitmap: Bit x = Clear Arming Input Bit x + 1;
-For Bits 32-63 of the ITSBitmap: Bit x = Set Arming Input Bit x ? 31
+For Bits 32-63 of the ITSBitmap: Bit x = Set Arming Input Bit x - 31
 <Informative> For example, for the value 0x80 00 00 00 04 00 00 00, 
  - Bit 0 is set indicating that Arming Input Bit 1 is cleared and 
  - Bit 33 is set indicating that Arming Input Bit 2 is set
 <Parameter Type> Configuration 
-<Informative> For example, two management stations can coordinate so that the first management station agrees to only use (set or clear) bits associated with arming inputs 1 and 2 while the other management station agrees to not use the bits associated with those two arming inputs.
+<Informative> For example, two management stations can coordinate so that the
+first management station agrees to only use (set or clear) bits associated with
+arming inputs 1 and 2 while the other management station agrees to not use the
+bits associated with those two arming inputs.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.14"
 ::= { tssSystemSetup 14 }
 
@@ -1152,7 +1342,10 @@ Bit x = Clear Arming Input Bit x + 1
 <Informative> For example, for the value 0x80 00 00 00, 
  - Bit 0 is set indicating that Arming Input Bit 1 is ON 
 <Parameter Type> Configuration 
-<Informative> For example, two management stations can coordinate so that the first management station agrees to only use (set or clear) bits associated with arming inputs 1 and 2 while the other management station agrees to not use the bits associated with those two arming inputs.
+<Informative> For example, two management stations can coordinate so that the
+first management station agrees to only use (set or clear) bits associated with
+arming inputs 1 and 2 while the other management station agrees to not use the
+bits associated with those two arming inputs.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.15"
 ::= { tssSystemSetup 15 }
 
@@ -1163,9 +1356,12 @@ UNITS      "seconds"
 MAX-ACCESS read-only
 STATUS     current
 DESCRIPTION
-"<Definition> The manufacturer-specified maximum duration after setting sensorSystemStatus until the TSS is able to respond to SNMP requests. 
+"<Definition> The manufacturer-specified maximum duration after setting
+sensorSystemStatus until the TSS is able to respond to SNMP requests. 
 <Parameter Type> Status 
-<Informative> During the reboot process, functions are interrupted. This value assists command generators to manage expecations on how long to wait during a reboot.
+<Informative> During the reboot process, functions are interrupted. This value
+assists command generators to manage expecations on how long to wait during a
+reboot.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.1.16"
 ::= { tssSystemSetup 16 }
 
@@ -1173,7 +1369,11 @@ DESCRIPTION
 tssControl OBJECT-IDENTITY 
 STATUS  current
 DESCRIPTION
-"This node is an identifier used to group all objects for TSS output control data elements. A sensor zone can be mapped to any available output. Outputs report discrete activity states sensed within a zone combined with other logic. Output states should be refreshed upon change of actuation state for each associated detector or any other parameters associated with the logic.
+"This node is an identifier used to group all objects for TSS output control
+data elements. A sensor zone can be mapped to any available output. Outputs
+report discrete activity states sensed within a zone combined with other logic.
+Output states should be refreshed upon change of actuation state for each
+associated detector or any other parameters associated with the logic.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2"
 ::= { tss 2 }
 
@@ -1195,7 +1395,10 @@ SYNTAX  SEQUENCE OF OutputConfigurationEntry
 MAX-ACCESS  not-accessible
 STATUS  current
 DESCRIPTION 
-"<Description> Table containing configuration data elements for each TSS physical output. The number of rows in this table is equal to the maxOutputNumber data element. Table rows are set by the manufacturer, and row creation/deletion is not supported.
+"<Description> Table containing configuration data elements for each TSS
+physical output. The number of rows in this table is equal to the
+maxOutputNumber data element. Table rows are set by the manufacturer, and row
+creation/deletion is not supported.
 <TableType> static
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.2"
 ::= { tssControl 2 }  
@@ -1216,7 +1419,7 @@ OutputConfigurationEntry ::= SEQUENCE {
       outputFailsafeMode            INTEGER,
       outputModeStatus              NtcipOctetBitmap8,
       outputLabel                   SnmpAdminString,
-      outputArmingEnables           BITMAP96,
+      outputArmingEnables           TssBitmap96,
       outputArmingMode              INTEGER,
       outputFailsafeModeV3          INTEGER,
       outputFailsafeReset           TruthValue,
@@ -1230,7 +1433,8 @@ SYNTAX  Integer32 (1..255)
 MAX-ACCESS  read-only
 STATUS  current
 DESCRIPTION 
-"<Definition> The numerical label or number assigned to a physical output. This is also the index value that uniquely identifies this entry.
+"<Definition> The numerical label or number assigned to a physical output. This
+is also the index value that uniquely identifies this entry.
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.2.1.1"
 ::= { outputConfigurationEntry 1 }
@@ -1241,7 +1445,9 @@ SYNTAX  Integer32 (0..255)
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION 
-"<Definition>The sensorZoneNumber for the zone associated with this output. A value of zero (0) indicates that no zone is associated with this output. When read, this data element returns the last value written.
+"<Definition>The sensorZoneNumber for the zone associated with this output. A
+value of zero (0) indicates that no zone is associated with this output. When
+read, this data element returns the last value written.
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.2.1.2"
 ::= { outputConfigurationEntry 2}
@@ -1257,7 +1463,8 @@ SYNTAX  INTEGER {
 MAX-ACCESS  read-write
 STATUS  deprecated
 DESCRIPTION 
-"<Definition> Data element that allows configuration of outputs for failure override modes, as follows:
+"<Definition> Data element that allows configuration of outputs for failure
+override modes, as follows:
       failsafeModeOn(1) - The output is set to the ON state whenever there is 
       a failure that affects the proper performance of this output;
       failsafeModeOff(2) - The output is set to the OFF state whenever there
@@ -1282,12 +1489,13 @@ SYNTAX  NtcipOctetBitmap8
 MAX-ACCESS  read-only
 STATUS  deprecated
 DESCRIPTION 
-"<Definition> A bit-mapped value as defined below for reading the status of failure override modes, as follows:
+"<Definition> A bit-mapped value as defined below for reading the status of
+failure override modes, as follows:
 <Format>
-1 ? detected failure. On. On. -   -
-2 ? failsafe mode.    On. Off -   -
-3 ? override          Off Off on. Off
-3 ? output            on. Off on  off
+1 - detected failure. On. On. -   -
+2 - failsafe mode.    On. Off -   -
+3 - override          Off Off on. Off
+3 - output            on. Off on  off
 bit 7       0 = OFF, 1 = ON         For Failsafe Mode Status ON indicates the
                                     Failsafe Mode is ON, meaning that the
                                     output assumes an ON state whenever there
@@ -1318,18 +1526,26 @@ SYNTAX  SnmpAdminString (SIZE (8..255))
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION 
-"<Definition> Text string to describe the TSS output. A maximum string length of less than 255 may be supported.
+"<Definition> Text string to describe the TSS output. A maximum string length
+of less than 255 may be supported.
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.2.1.5"
 ::= { outputConfigurationEntry 5 }
 
 -- 5.3.2.6 Output Arming Enables
 outputArmingEnables  OBJECT-TYPE
-SYNTAX  BITMAP96
+SYNTAX  TssBitmap96
 MAX-ACCESS  read-write
 STATUS  deprecated
 DESCRIPTION 
-"<Definition> Consists of up to 16 physical Arming Pins to the TSS and up to 32 bits of external arming bits which can be controlled through this protocol. The Arming Pins have historically been connected to the phase greens but can be used for any purpose. It is envisioned that the phase green information could be sent through Arming Input Bits using the protocol and eliminate the need for additional wiring. If the Arming Pin inputs are DC then a low input is an ON and a high input is an OFF. If the Arming Pin inputs are AC then a low input is an OFF and a high input is an ON.
+"<Definition> Consists of up to 16 physical Arming Pins to the TSS and up to 32
+bits of external arming bits which can be controlled through this protocol. The
+Arming Pins have historically been connected to the phase greens but can be
+used for any purpose. It is envisioned that the phase green information could
+be sent through Arming Input Bits using the protocol and eliminate the need for
+additional wiring. If the Arming Pin inputs are DC then a low input is an ON
+and a high input is an OFF. If the Arming Pin inputs are AC then a low input is
+an OFF and a high input is an ON.
 <Format>
 byte 1      Bit 0 = Arming Pin 1 OFF,
             Bit 1 = Arming Pin 2 OFF,
@@ -1429,7 +1645,8 @@ byte 12     Bit 0 = Arming Input bit 25 ON,
             Bit 7 = Arming Input bit 32 ON.
 <Parameter Type> Configuration 
 <Superseded by> outputArmingEnablesV3
-<Informative> This object was deprecated in v03 to resolve ambiguities regarding bit order.
+<Informative> This object was deprecated in v03 to resolve ambiguities
+regarding bit order.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.2.1.6"
 ::= { outputConfigurationEntry 6 }
 
@@ -1448,7 +1665,8 @@ SYNTAX  INTEGER {
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION 
-"<Definition> This parameter determines if and how the Arming Enables are used to modify the operation of this output.
+"<Definition> This parameter determines if and how the Arming Enables are used
+to modify the operation of this output.
       armingEnablesHaveNoEffect(1) - The Arming Enables have no effect on the
       output of the zone.
       normOffArmingEnablesORedZone(2) - The zone output is OFF when none of
@@ -1476,7 +1694,9 @@ DESCRIPTION
       state when any of the Arming Enables are not active, and ON when all of
       the Arming Enables are active.
 <Parameter Type> Configuration 
-<Informative> The state of the zone output for each of the numbered arming modes are summarized in the following table. A hyphen indicates that the Arming Enables have no effect on the output of the zone. 
+<Informative> The state of the zone output for each of the numbered arming
+modes are summarized in the following table. A hyphen indicates that the Arming
+Enables have no effect on the output of the zone. 
           +--------+------+---+---+---+---+---+---+---+---+---+
           |  Arming Mode  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
           +--------+------+---+---+---+---+---+---+---+---+---+
@@ -1497,7 +1717,8 @@ SYNTAX  INTEGER {
 MAX-ACCESS  read-write
 STATUS  current
 DESCRIPTION 
-"<Definition> Indicates the state that the output will assume when the TSS detects a failure that affects the proper performance of this output
+"<Definition> Indicates the state that the output will assume when the TSS
+detects a failure that affects the proper performance of this output
 <Format> Valid values follow:
       failsafeModeOn(1) - The output is set to the ON state whenever the TSS
       detects a failure;
@@ -1513,7 +1734,10 @@ SYNTAX     TruthValue
 MAX-ACCESS read-write
 STATUS     current
 DESCRIPTION 
-"<Definition> When set to true, the TSS shall reset the failsafe logic. Upon completion, this object shall transition back to false. The TSS may reset the failsafe logic on its own without the use of this object. The TSS shall return the output to the failsafe mode after a reset if it detects a failure.
+"<Definition> When set to true, the TSS shall reset the failsafe logic. Upon
+completion, this object shall transition back to false. The TSS may reset the
+failsafe logic on its own without the use of this object. The TSS shall return
+the output to the failsafe mode after a reset if it detects a failure.
 <Parameter Type> Control 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.2.1.9"
 ::= { outputConfigurationEntry 9 } 
@@ -1545,8 +1769,10 @@ SYNTAX     BITS { failsafeOn (0),
 MAX-ACCESS read-only
 STATUS     current
 DESCRIPTION 
-"<Definition> Indicates which, if any, of the indicated conditions are currently active. 
-<Format> When all bits are zero, none of the following conditions are affecting the state of the output. 
+"<Definition> Indicates which, if any, of the indicated conditions are
+currently active. 
+<Format> When all bits are zero, none of the following conditions are affecting
+the state of the output. 
 failsafeOn (0): When set, a failure has been detected and failsafeModeOn of 
   outputFailsafeModeV3 is applied changing the output to ON (unless 
   overridden);
@@ -1584,12 +1810,18 @@ SYNTAX  BITS {pin1off(0),     pin2off(1),     pin3off(2),     pin4off(3),
               input17on(80),  input18on(81),  input19on(82),  input20on(83),
               input21on(84),  input22on(85),  input23on(86),  input24on(87),
               input25on(88),  input26on(89),  input27on(90),  input28on(91),
-              input29on(92),  input30on(93),  input31on(94),  input32on(95)
- }
+              input29on(92),  input30on(93),  input31on(94),  input32on(95) }
 MAX-ACCESS  read-write
 STATUS      current
 DESCRIPTION 
-"<Definition> Consists of up to 16 physical Arming Pins to the TSS and up to 32 external arming bits which can be controlled through this protocol. The Arming Pins have historically been connected to the phase greens but can be used for any purpose. It is envisioned that the phase green information could be sent through Arming Input Bits using the protocol and eliminate the need for additional wiring. If the Arming Pin inputs are DC then a low input is an ON and a high input is an OFF. If the Arming Pin inputs are AC then a low input is an OFF and a high input is an ON.
+"<Definition> Consists of up to 16 physical Arming Pins to the TSS and up to 32
+external arming bits which can be controlled through this protocol. The Arming
+Pins have historically been connected to the phase greens but can be used for
+any purpose. It is envisioned that the phase green information could be sent
+through Arming Input Bits using the protocol and eliminate the need for
+additional wiring. If the Arming Pin inputs are DC then a low input is an ON
+and a high input is an OFF. If the Arming Pin inputs are AC then a low input is
+an OFF and a high input is an ON.
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.2.1.12"
 ::= { outputConfigurationEntry 12 }
@@ -1601,7 +1833,8 @@ UNITS   "output groups"
 MAX-ACCESS  read-only
 STATUS  current
 DESCRIPTION 
-"<Definition> Indicates the maximum number of output groups supported by this TSS.
+"<Definition> Indicates the maximum number of output groups supported by this
+TSS.
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.3"
 ::= { tssControl 3 }
@@ -1612,7 +1845,12 @@ SYNTAX  SEQUENCE OF OutputGroupEntry
 MAX-ACCESS  not-accessible
 STATUS  current
 DESCRIPTION 
-"<Definition> A table containing input and output states for groups of eight outputs. Each output group represents a multiple of eight (8) sequentially numbered outputs. Output Group 1 consists of Outputs 1 to 8, Output Group 2 consists of Outputs 9 to 16, etc. The number of rows in this table is equal to the maxOutputGroups data element. Table rows are set by the manufacturer, and row creation/deletion is not supported.
+"<Definition> A table containing input and output states for groups of eight
+outputs. Each output group represents a multiple of eight (8) sequentially
+numbered outputs. Output Group 1 consists of Outputs 1 to 8, Output Group 2
+consists of Outputs 9 to 16, etc. The number of rows in this table is equal to
+the maxOutputGroups data element. Table rows are set by the manufacturer, and
+row creation/deletion is not supported.
 <TableType> static
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.4"
 ::= { tssControl 4 }
@@ -1622,7 +1860,10 @@ SYNTAX  OutputGroupEntry
 MAX-ACCESS  not-accessible
 STATUS  current
 DESCRIPTION 
-"<Definition> Table for output states, in groups of eight outputs. Each output group represents a multiple of eight (8) sequentially numbered outputs. Example: Output Group 1 consists of Outputs 1 to 8, Output Group 2 consists of Outputs 9 to 16, etc.
+"<Definition> Table for output states, in groups of eight outputs. Each output
+group represents a multiple of eight (8) sequentially numbered outputs.
+Example: Output Group 1 consists of Outputs 1 to 8, Output Group 2 consists of
+Outputs 9 to 16, etc.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.4.1"
 
 INDEX { outputGroupNumber }
@@ -1639,7 +1880,10 @@ UNITS   "outputs"
 MAX-ACCESS  read-only
 STATUS  current
 DESCRIPTION 
-"<Definition> Number of the output group, in groups of eight outputs. Each output group represents a multiple of eight (8) sequentially numbered outputs. Output Group 1 consists of Outputs 1 to 8, Output Group 2 consists of Outputs 9 to 16, etc.
+"<Definition> Number of the output group, in groups of eight outputs. Each
+output group represents a multiple of eight (8) sequentially numbered outputs.
+Output Group 1 consists of Outputs 1 to 8, Output Group 2 consists of Outputs 9
+to 16, etc.
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.2.4.1.1"
 ::= { outputGroupEntry 1 }
@@ -1650,7 +1894,10 @@ SYNTAX  ITSBitmap (SIZE (1))
 MAX-ACCESS  read-only
 STATUS  current
 DESCRIPTION 
-"<Definition> Each bit represents the output state for each output within the output group. Each output group represents a multiple of eight (8) sequentially numbered outputs as shown below. Example: Output Group 1 consists of Outputs 1 to 8, Output Group 2 consists of Outputs 9 to 16, etc. 
+"<Definition> Each bit represents the output state for each output within the
+output group. Each output group represents a multiple of eight (8) sequentially
+numbered outputs as shown below. Example: Output Group 1 consists of Outputs 1
+to 8, Output Group 2 consists of Outputs 9 to 16, etc. 
 <Format>
       Bit 0   For output (outputGroupNumber - 1) * 8 + 8,
       Bit 1   For output (outputGroupNumber - 1) * 8 + 7,
@@ -1679,8 +1926,13 @@ SYNTAX  SEQUENCE OF DataCollectionEntry
 MAX-ACCESS  not-accessible
 STATUS  deprecated
 DESCRIPTION 
-"<Definition> Table containing the most recently completed sample period data. The number of rows in this table is equal to the maxSensorZones data element. Table rows are set by the manufacturer, and row creation/deletion is not supported.
-If this object is supported, it reports the same data that is returned using the new object sampleDataTable with a sampleZoneClass of one and a sampleEntryNum of two.
+"<Definition> Table containing the most recently completed sample period data.
+The number of rows in this table is equal to the maxSensorZones data element.
+Table rows are set by the manufacturer, and row creation/deletion is not
+supported.
+If this object is supported, it reports the same data that is returned using
+the new object sampleDataTable with a sampleZoneClass of one and a
+sampleEntryNum of two.
 <Superseded by> zoneSequenceTable and the sampleDataTable, entry number 2
 <Informative> This object was deprecated in NTCIP 1209 v02.
 <TableType> static
@@ -1714,10 +1966,20 @@ UNITS      "seconds"
 MAX-ACCESS read-only
 STATUS     deprecated
 DESCRIPTION 
-"<Definition> Indicates the time at which the data collection period ended for the data contained in this row, the most recently completed sample period. If the clockAvailable data element indicates the presence of a clock, this time shall be expressed in local time as expressed in the controllerLocalTime data element (see NTCIP 1201 v03); otherwise, this time shall be expressed in the number of seconds since the most recent TSS initialization.
+"<Definition> Indicates the time at which the data collection period ended for
+the data contained in this row, the most recently completed sample period. If
+the clockAvailable data element indicates the presence of a clock, this time
+shall be expressed in local time as expressed in the controllerLocalTime data
+element (see NTCIP 1201 v03); otherwise, this time shall be expressed in the
+number of seconds since the most recent TSS initialization.
 <Parameter Type> Status 
-<Superseded by> sampleEndTime.x.2.1, where x = the sensorZoneNumber of this entry. If this object is supported, it must report the same value as the superceding object.
-<Informative> This object was deprecated in NTCIP 1209 v02. In SNMPv1, this object was represented as a Counter; however, the object does not satisfy the requirements of a Counter and is therefore presented as a Unsigned32 within SNMPv3. 
+<Superseded by> sampleEndTime.x.2.1, where x = the sensorZoneNumber of this
+entry. If this object is supported, it must report the same value as the
+superceding object.
+<Informative> This object was deprecated in NTCIP 1209 v02. In SNMPv1, this
+object was represented as a Counter; however, the object does not satisfy the
+requirements of a Counter and is therefore presented as a Unsigned32 within
+SNMPv3. 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.1.1.1"
 ::= { dataCollectionEntry 1 }
 
@@ -1728,9 +1990,15 @@ UNITS   "counts"
 MAX-ACCESS  read-only
 STATUS  deprecated
 DESCRIPTION
-"<Definition> Counts per sample period, for the most recently completed sample period. Counts are expressed as an integer value in the volumeData data element. The value of 65535 shall be returned to represent a missing value. A missing value is reported when the zoneStatus is anything other than OK for the entire sampling period.
+"<Definition> Counts per sample period, for the most recently completed sample
+period. Counts are expressed as an integer value in the volumeData data
+element. The value of 65535 shall be returned to represent a missing value. A
+missing value is reported when the zoneStatus is anything other than OK for the
+entire sampling period.
 <Parameter Type> Status 
-<Superseded by> sampleVolumeData.x.2.1, where x = the sensorZoneNumber of this entry. If this object is supported, it must report the same value as the superceding object.
+<Superseded by> sampleVolumeData.x.2.1, where x = the sensorZoneNumber of this
+entry. If this object is supported, it must report the same value as the
+superceding object.
 <Informative> This object was deprecated in NTCIP 1209 v02.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.1.1.2"
 ::= { dataCollectionEntry 2 }
@@ -1742,9 +2010,16 @@ UNITS   "decipercent"
 MAX-ACCESS  read-only
 STATUS  deprecated
 DESCRIPTION
-"<Definition> Percent occupancy over the sample period for the most recently completed sample period. Occupancy is expressed in tenths of a percent, from 0 to 100.0 percent, in the percentOccupancy data element. The value of 65535 shall be returned to represent an invalid or missing value. A missing value is reported when the zoneStatus is anything other than OK for the entire sampling period. Values 1001 through 65534 are reserved for future use.
+"<Definition> Percent occupancy over the sample period for the most recently
+completed sample period. Occupancy is expressed in tenths of a percent, from 0
+to 100.0 percent, in the percentOccupancy data element. The value of 65535
+shall be returned to represent an invalid or missing value. A missing value is
+reported when the zoneStatus is anything other than OK for the entire sampling
+period. Values 1001 through 65534 are reserved for future use.
 <Parameter Type> Status 
-<Superseded by> samplePercentOccupancy.x.2.1, where x = the sensorZoneNumber of this entry. If this object is supported, it must report the same value as the superceding object.
+<Superseded by> samplePercentOccupancy.x.2.1, where x = the sensorZoneNumber of
+this entry. If this object is supported, it must report the same value as the
+superceding object.
 <Informative> This object was deprecated in NTCIP 1209 v02.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.1.1.3"
 ::= { dataCollectionEntry 3 }
@@ -1756,9 +2031,16 @@ UNITS   "tenths of km/h"
 MAX-ACCESS  read-only
 STATUS  deprecated
 DESCRIPTION
-"<Definition> Arithmetic mean of speeds collected over the sample period with units of 1/10ths of km/h, for the most recently completed sample period. For a volume of zero during the sample period, the value of 65535 shall be returned to represent an invalid or missing value. A missing value is reported when the zoneStatus returned indicates no other status values apply for the entire sampling period. Values 2551 through 65534 are reserved for future use.
+"<Definition> Arithmetic mean of speeds collected over the sample period with
+units of 1/10ths of km/h, for the most recently completed sample period. For a
+volume of zero during the sample period, the value of 65535 shall be returned
+to represent an invalid or missing value. A missing value is reported when the
+zoneStatus returned indicates no other status values apply for the entire
+sampling period. Values 2551 through 65534 are reserved for future use.
 <Parameter Type> Status 
-<Superseded by> sampleSpeedData.x.2.1, where x = the sensorZoneNumber of this entry. If this object is supported, it must report the same value as the superceding object.
+<Superseded by> sampleSpeedData.x.2.1, where x = the sensorZoneNumber of this
+entry. If this object is supported, it must report the same value as the
+superceding object.
 <Informative> This object was deprecated in NTCIP 1209 v02.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.1.1.4"
 -- conversion to English units must be done within the application
@@ -1796,9 +2078,13 @@ DESCRIPTION
       overrideActive - Indicates an override is active.
       sensorFailure - Indicates a sensing element failure.
 
-If a condition occurs during the sample period, then that state remains for the duration of that sample period. If multiple conditions occur during a sample period, the last reported condition, other than OK, is retained.
+If a condition occurs during the sample period, then that state remains for the
+duration of that sample period. If multiple conditions occur during a sample
+period, the last reported condition, other than OK, is retained.
 <Parameter Type> Status 
-<Superseded by> sampleVolumeData.x.2.1, where x = the sensorZoneNumber of this entry. If this object is supported, it must report the same value as the superceding object.
+<Superseded by> sampleVolumeData.x.2.1, where x = the sensorZoneNumber of this
+entry. If this object is supported, it must report the same value as the
+superceding object.
 <Informative> This object was deprecated in NTCIP 1209 v02.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.1.1.5"
 ::= { dataCollectionEntry 5 }
@@ -1809,8 +2095,16 @@ SYNTAX  SEQUENCE OF DataBufferEntry
 MAX-ACCESS  not-accessible
 STATUS  deprecated
 DESCRIPTION 
-"<Definition> Table containing the second most recently completed previous sample period data, which value is specified by the value of the sensorZoneSamplePeriod data element. The previous period data overwrites the data for the sample period data immediately preceding the previous sample period. The number of rows in this table is equal to the maxSensorZones data element. Table rows are set by the manufacturer, and row creation/deletion is not supported.
-<Superseded by> sampleDataTable for sampleZoneClass of one and a sampleEntryNum of three. If this table is supported, it must report the same data as the superceding table.
+"<Definition> Table containing the second most recently completed previous
+sample period data, which value is specified by the value of the
+sensorZoneSamplePeriod data element. The previous period data overwrites the
+data for the sample period data immediately preceding the previous sample
+period. The number of rows in this table is equal to the maxSensorZones data
+element. Table rows are set by the manufacturer, and row creation/deletion is
+not supported.
+<Superseded by> sampleDataTable for sampleZoneClass of one and a sampleEntryNum
+of three. If this table is supported, it must report the same data as the
+superceding table.
 <Informative> This object was deprecated in NTCIP 1209 v02.
 <TableType> static
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.2"
@@ -1821,8 +2115,11 @@ SYNTAX  DataBufferEntry
 MAX-ACCESS  not-accessible
 STATUS  deprecated
 DESCRIPTION 
-"<Definition> Table containing the data collection parameters for the second most recently completed previous sample period. 
-<Superseded by> sampleDataEntry for sampleZoneClass of one and a sampleEntryNum of three. If this entry is supported, it must report the same data as the superceding entry.
+"<Definition> Table containing the data collection parameters for the second
+most recently completed previous sample period. 
+<Superseded by> sampleDataEntry for sampleZoneClass of one and a sampleEntryNum
+of three. If this entry is supported, it must report the same data as the
+superceding entry.
 <Informative> This object was deprecated in NTCIP 1209 v02.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.2.1"
 
@@ -1843,9 +2140,17 @@ UNITS   "seconds"
 MAX-ACCESS  read-only
 STATUS  deprecated
 DESCRIPTION 
-"<Definition> Indicates the time at which the data collection period ended for the data contained in this row, the second most recently completed previous sample period. If the clockAvailable data element indicates the presence of a clock, this time shall be expressed in local time as expressed in the controllerLocalTime data element (see NTCIP 1201 v03); otherwise, this time shall be expressed in the number of seconds since the most recent TSS initialization.
+"<Definition> Indicates the time at which the data collection period ended for
+the data contained in this row, the second most recently completed previous
+sample period. If the clockAvailable data element indicates the presence of a
+clock, this time shall be expressed in local time as expressed in the
+controllerLocalTime data element (see NTCIP 1201 v03); otherwise, this time
+shall be expressed in the number of seconds since the most recent TSS
+initialization.
 <Parameter Type> Status 
-<Superseded by> sampleEndTime.x.3.1, where x = the sensorZoneNumber of this entry. If this object is supported, it must report the same value as the superceding object.
+<Superseded by> sampleEndTime.x.3.1, where x = the sensorZoneNumber of this
+entry. If this object is supported, it must report the same value as the
+superceding object.
 <Informative> This object was deprecated in NTCIP 1209 v02.
 Identifier> 1.3.6.1.4.1.1206.4.2.4.3.2.1.1"
 ::= { dataBufferEntry 1 }
@@ -1857,9 +2162,15 @@ UNITS   "counts"
 MAX-ACCESS  read-only
 STATUS  deprecated
 DESCRIPTION 
-"<Definition> Counts per sample period, for the second most recently completed previous sample period. Counts are expressed as an integer value in the volumeData data element. The value of 65535 shall be returned to represent a missing value. A missing value is reported when the zoneStatusBuffer returned indicates no other status values apply for the entire sampling period.
+"<Definition> Counts per sample period, for the second most recently completed
+previous sample period. Counts are expressed as an integer value in the
+volumeData data element. The value of 65535 shall be returned to represent a
+missing value. A missing value is reported when the zoneStatusBuffer returned
+indicates no other status values apply for the entire sampling period.
 <Parameter Type> Status 
-<Superseded by> sampleVolumeData.x.3.1, where x = the sensorZoneNumber of this entry. If this object is supported, it must report the same value as the superceding object.
+<Superseded by> sampleVolumeData.x.3.1, where x = the sensorZoneNumber of this
+entry. If this object is supported, it must report the same value as the
+superceding object.
 <Informative> This object was deprecated in NTCIP 1209 v02.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.2.1.2"
 ::= { dataBufferEntry 2 }
@@ -1871,9 +2182,17 @@ UNITS   "decipercent"
 MAX-ACCESS  read-only
 STATUS  deprecated
 DESCRIPTION 
-"<Definition> Percent occupancy over the sample period for the second most recently completed previous sample period. Occupancy is expressed in tenths of a percent, from 0 to 100.0 percent, in the percentOccupancy data element. The value of 65535 shall be returned to represent an invalid or missing value. A missing value is reported when the zoneStatusBuffer is anything other than OK for the entire sampling period. Values 1001 through 65534 are reserved for future use.
+"<Definition> Percent occupancy over the sample period for the second most
+recently completed previous sample period. Occupancy is expressed in tenths of
+a percent, from 0 to 100.0 percent, in the percentOccupancy data element. The
+value of 65535 shall be returned to represent an invalid or missing value. A
+missing value is reported when the zoneStatusBuffer is anything other than OK
+for the entire sampling period. Values 1001 through 65534 are reserved for
+future use.
 <Parameter Type> Status 
-<Superseded by> samplePercentOccupancy.x.3.1, where x = the sensorZoneNumber of this entry. If this object is supported, it must report the same value as the superceding object.
+<Superseded by> samplePercentOccupancy.x.3.1, where x = the sensorZoneNumber of
+this entry. If this object is supported, it must report the same value as the
+superceding object.
 <Informative> This object was deprecated in NTCIP 1209 v02.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.2.1.3"
 ::= { dataBufferEntry 3 }
@@ -1885,9 +2204,16 @@ UNITS   "tenths of km/h"
 MAX-ACCESS  read-only
 STATUS  deprecated
 DESCRIPTION 
-"<Description> Arithmetic mean of speeds collected over the sample period, with units of 1/10ths of km/hr, for the second most recently completed previous sample period. For a volume of zero during the sample period, the value of 65535 shall be returned to represent an invalid or missing value. A missing value is reported when the zoneStatusBuffer is anything other than OK for the entire sampling period. Values 2551 through 65534 are reserved for future use.
+"<Description> Arithmetic mean of speeds collected over the sample period, with
+units of 1/10ths of km/hr, for the second most recently completed previous
+sample period. For a volume of zero during the sample period, the value of
+65535 shall be returned to represent an invalid or missing value. A missing
+value is reported when the zoneStatusBuffer is anything other than OK for the
+entire sampling period. Values 2551 through 65534 are reserved for future use.
 <Parameter Type> Status 
-<Superseded by> sampleSpeedData.x.3.1, where x = the sensorZoneNumber of this entry. If this object is supported, it must report the same value as the superceding object.
+<Superseded by> sampleSpeedData.x.3.1, where x = the sensorZoneNumber of this
+entry. If this object is supported, it must report the same value as the
+superceding object.
 <Informative> This object was deprecated in NTCIP 1209 v02.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.2.1.4"
 ::= { dataBufferEntry 4 }
@@ -1908,7 +2234,8 @@ SYNTAX  INTEGER {
                  }
 MAX-ACCESS  read-only
 STATUS  deprecated
-DESCRIPTION "Detailed status returned as result of diagnostics, for the previous sample period, as follows:
+DESCRIPTION "Detailed status returned as result of diagnostics, for the
+previous sample period, as follows:
       Value        Meaning
       Other - Indicates an error has occurred within the TSS for which
       there is no defined definition within this data element,
@@ -1924,9 +2251,13 @@ DESCRIPTION "Detailed status returned as result of diagnostics, for the previous
       overrideActive - Indicates an override is active,
       sensorFailure - Indicates a sensing element failure.
 
-If a condition occurs during the sample period, then that state remains for the duration of that sample period. If multiple conditions occur during a sample period, the last reported condition, other than OK, is retained.
+If a condition occurs during the sample period, then that state remains for the
+duration of that sample period. If multiple conditions occur during a sample
+period, the last reported condition, other than OK, is retained.
 <Parameter Type> Status 
-<Superseded by> sampleZoneStatus.x.3.1, where x = the sensorZoneNumber of this entry. If this object is supported, it must report the same value as the superceding object.
+<Superseded by> sampleZoneStatus.x.3.1, where x = the sensorZoneNumber of this
+entry. If this object is supported, it must report the same value as the
+superceding object.
 <Informative> This object was deprecated in NTCIP 1209 v02.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.2.1.5"
 ::= { dataBufferEntry 5 }
@@ -1937,7 +2268,12 @@ SYNTAX  SEQUENCE OF ZoneSequenceTableEntry
 MAX-ACCESS  not-accessible
 STATUS  current
 DESCRIPTION 
-"<Definition> Table indicating the number of historical data entries and the number of classes available for each zone. The maxSensorZones defines the number of entries in this table. For each zone, retrieve the numSampleDataEntries available and the sensorZoneClass for those historical data entries, then retrieve the appropriate data samples from the sampleDataTable.
+"<Definition> Table indicating the number of historical data entries and the
+number of classes available for each zone. The maxSensorZones defines the
+number of entries in this table. For each zone, retrieve the
+numSampleDataEntries available and the sensorZoneClass for those historical
+data entries, then retrieve the appropriate data samples from the
+sampleDataTable.
 <TableType> static
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.3"
 ::= { tssDataCollection 3 }
@@ -1947,7 +2283,9 @@ SYNTAX  ZoneSequenceTableEntry
 MAX-ACCESS  not-accessible
 STATUS  current
 DESCRIPTION 
-"<Definition> Entry containing the number of historical data entries and the number of classes for the indicated zone. The maxSensorZones table defines the number of entries in this table. 
+"<Definition> Entry containing the number of historical data entries and the
+number of classes for the indicated zone. The maxSensorZones table defines the
+number of entries in this table. 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.3.1"
 INDEX { sensorZoneNumber }
 ::= { zoneSequenceTable 1 }
@@ -1963,10 +2301,15 @@ UNITS   "entries"
 MAX-ACCESS  read-only
 STATUS  current
 DESCRIPTION 
-"<Definition> The number of valid or partial historical data entries in the sampleDataTable for the indicated zone. 
+"<Definition> The number of valid or partial historical data entries in the
+sampleDataTable for the indicated zone. 
 <Parameter Type> Status 
-<Informative> The sampleDataTable is a static table that contains a constant number of rows; however, at initialization none of these entries will contain valid data. This object provides guidance as to which historical data entries are valid for the indicated zone. Row 1 is always a partial record indicating data currently being collected (or prematurely being disabled).
-Each historical data entry consists of numSensorZoneClass rows.[KV3]
+<Informative> The sampleDataTable is a static table that contains a constant
+number of rows; however, at initialization none of these entries will contain
+valid data. This object provides guidance as to which historical data entries
+are valid for the indicated zone. Row 1 is always a partial record indicating
+data currently being collected (or prematurely being disabled).
+Each historical data entry consists of numSensorZoneClass rows.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.3.1.1"
 ::= { zoneSequenceTableEntry 1 }
 
@@ -1977,9 +2320,12 @@ UNITS   "classes"
 MAX-ACCESS  read-only
 STATUS  current
 DESCRIPTION 
-"<Definition> This is the number of classes currently valid for each valid historical data entry in the sampleDataTable for the indicated zone.
+"<Definition> This is the number of classes currently valid for each valid
+historical data entry in the sampleDataTable for the indicated zone.
 <Parameter Type> Status 
-<Informative> The sampleDataTable is a static table that contains a constant number of rows; however, not all rows will always contain valid data. This object provides guidance as to which rows are valid.
+<Informative> The sampleDataTable is a static table that contains a constant
+number of rows; however, not all rows will always contain valid data. This
+object provides guidance as to which rows are valid.
 Each historical data entry consists of numSensorZoneClass rows.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.3.1.2"
 ::= { zoneSequenceTableEntry 2 }
@@ -1990,12 +2336,29 @@ SYNTAX  SEQUENCE OF SampleDataEntry
 MAX-ACCESS  not-accessible
 STATUS  current
 DESCRIPTION 
-"<Definition> Table containing the historical sample period data. The number of rows in this table is equal to the maxSensorZones data element multiplied by the maxSampleDataEntries data element multiplied by the maximum number of claseses that can be specified (i.e., the maximum value of numSensorZoneClasses). Table rows are set by the manufacturer, and row creation/deletion is not supported; however, only the rows indicated by the zoneSequenceTable will contain valid data.
+"<Definition> Table containing the historical sample period data. The number of
+rows in this table is equal to the maxSensorZones data element multiplied by
+the maxSampleDataEntries data element multiplied by the maximum number of
+claseses that can be specified (i.e., the maximum value of
+numSensorZoneClasses). Table rows are set by the manufacturer, and row
+creation/deletion is not supported; however, only the rows indicated by the
+zoneSequenceTable will contain valid data.
 
-When a new historical data entry begins for a zone, the value of sampleEntryNum increments for each row associated with that zone; if the new value of sampleEntryNum exceeds maxSampleDataEntries, the row is discarded. [KV4]To retrieve all historical data entries for a zone, the oldest valid historical data entry (i.e., as identified by a sampleEntryNum being equal to numSampleDataEntries for the zone) should be retrieved first (i.e., before it is discarded). Earlier entries can then be retrieved in order.
+When a new historical data entry begins for a zone, the value of sampleEntryNum
+increments for each row associated with that zone; if the new value of
+sampleEntryNum exceeds maxSampleDataEntries, the row is discarded. To
+retrieve all historical data entries for a zone, the oldest valid historical
+data entry (i.e., as identified by a sampleEntryNum being equal to
+numSampleDataEntries for the zone) should be retrieved first (i.e., before it
+is discarded). Earlier entries can then be retrieved in order.
 
-A historical data entry consists of all rows with the same pair of values for sensorZoneNumber and sampleSequenceNumber; however, rows are retrieved by sensorZoneNumber and sampleEntryNum. Because a new sample period can shift rows within the table, the management station should verify that the sampleSequenceNumber is as is expected and to adjust its requests if not. 
-<Informative> A sequence number is used rather than end time because the system clock can be reset between data samples. 
+A historical data entry consists of all rows with the same pair of values for
+sensorZoneNumber and sampleSequenceNumber; however, rows are retrieved by
+sensorZoneNumber and sampleEntryNum. Because a new sample period can shift rows
+within the table, the management station should verify that the
+sampleSequenceNumber is as is expected and to adjust its requests if not. 
+<Informative> A sequence number is used rather than end time because the system
+clock can be reset between data samples. 
 <TableType> static
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4"
 ::= { tssDataCollection 4 }
@@ -2020,8 +2383,7 @@ SampleDataEntry ::= SEQUENCE {
       sampleSpeedData         Integer32,
       sampleZoneStatus        INTEGER,
       sampleSequenceNumber    Integer32,
-      sampleEndTimeStamp      ITSTimeStamp,
-      sampleEndTimeTicks      TimeTicks }
+      sampleEndTimeStamp      ITSTimeStamp }
 
 -- 5.4.4.1 Sample Entry Number
 sampleEntryNum  OBJECT-TYPE
@@ -2029,7 +2391,9 @@ SYNTAX  Integer32 (1..5)
 MAX-ACCESS  read-only
 STATUS  current
 DESCRIPTION
-"<Definition> This identifies which historical sampling period that data is being requested from. 1 being the sampling period currently in-progress. 2 being the most recently completed sampling period.
+"<Definition> This identifies which historical sampling period that data is
+being requested from. 1 being the sampling period currently in-progress. 2
+being the most recently completed sampling period.
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4.1.1"
 ::= { sampleDataEntry 1 }
@@ -2040,8 +2404,15 @@ SYNTAX  Integer32 (1..255)
 MAX-ACCESS  read-only
 STATUS  current
 DESCRIPTION
-"<Definition> This identifies the subdivision of collected data (i.e., 'class') from the sensor zone from which historical sampling period data is being requested. Class 1 shall always represent all data collected from the zone. If there are any other classes defined, it will represent the aggregation of the data from all other classes within the same historical data entry for the zone. 
-<Informative> An implementation that reports exactly two classes would be redundant based on this definition. In other words, if there are only two classes, Class 1 would aggreate all other classes, but since there is only one other class (Class 2), it would duplicate its values. 
+"<Definition> This identifies the subdivision of collected data (i.e., 'class')
+from the sensor zone from which historical sampling period data is being
+requested. Class 1 shall always represent all data collected from the zone. If
+there are any other classes defined, it will represent the aggregation of the
+data from all other classes within the same historical data entry for the zone. 
+<Informative> An implementation that reports exactly two classes would be
+redundant based on this definition. In other words, if there are only two
+classes, Class 1 would aggreate all other classes, but since there is only one
+other class (Class 2), it would duplicate its values. 
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4.1.2"
 ::= { sampleDataEntry 2 }
@@ -2053,10 +2424,19 @@ UNITS   "seconds"
 MAX-ACCESS  read-only
 STATUS  deprecated
 DESCRIPTION 
-"<Definition> Indicates the time at which the data collection period ended for the data contained in this row. If the clockAvailable data element indicates the presence of a clock, this time shall be expressed in local time as expressed in the controllerLocalTime data element (see NTCIP 1201 v03); otherwise, this time shall be expressed in the number of seconds since the most recent TSS initialization.
+"<Definition> Indicates the time at which the data collection period ended for
+the data contained in this row. If the clockAvailable data element indicates
+the presence of a clock, this time shall be expressed in local time as
+expressed in the controllerLocalTime data element (see NTCIP 1201 v03);
+otherwise, this time shall be expressed in the number of seconds since the most
+recent TSS initialization.
 <Parameter Type> Status 
 <Superseded by> sampleEndTimeStamp
-<Informative> This object was deprecated in NTCIP 1209 v03 as it relied on an old definition of time.
+<Informative> This object was deprecated in NTCIP 1209 v03 as it relied on an
+old definition of time. Prior to v03, this object was defined as a Counter;
+however, the semantics of this object do not align with the definition of a
+counter and therefore within SNMPv3, this object is represented as an
+Unsigned32.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4.1.3"
 ::= { sampleDataEntry 3 }
 
@@ -2067,7 +2447,15 @@ UNITS   "activations"
 MAX-ACCESS  read-only
 STATUS  current
 DESCRIPTION 
-"<Definition> Activations per sample period. Activations are expressed as an integer value in the sampleVolumeData data element. For a virtual zone (one created using any AND Boolean functions), volume is the number of times that the output for the zone was activated. For a virtual zone (one created using only OR Boolean functions), volume is the additive total of the volumes of all of the zones that make up the virtual zone. The value of 65534 shall mean 65534 activations or more. The value of 65535 shall be returned to represent a missing value. A missing value is reported when the zoneStatus is anything other than OK for the entire sampling period.
+"<Definition> Activations per sample period. Activations are expressed as an
+integer value in the sampleVolumeData data element. For a virtual zone (one
+created using any AND Boolean functions), volume is the number of times that
+the output for the zone was activated. For a virtual zone (one created using
+only OR Boolean functions), volume is the additive total of the volumes of all
+of the zones that make up the virtual zone. The value of 65534 shall mean 65534
+activations or more. The value of 65535 shall be returned to represent a
+missing value. A missing value is reported when the zoneStatus is anything
+other than OK for the entire sampling period.
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4.1.4"
 ::= { sampleDataEntry 4 }
@@ -2079,7 +2467,14 @@ UNITS   "decipercent"
 MAX-ACCESS  read-only
 STATUS  current
 DESCRIPTION 
-"<Definition> Percent occupancy over the sample period. Occupancy is expressed in tenths of a percent, from 0 to 100.0 percent, in the samplePercentOccupancy data element. For a virtual zone (one created using AND and/or OR Boolean functions), the percent of time that the output for the zone was activated shall be returned. The value of 65535 shall be returned to represent an invalid or missing value. A missing value is reported when the zoneStatus is anything other than OK for the entire sampling period. Values 1001 through 65534 are reserved for future use.
+"<Definition> Percent occupancy over the sample period. Occupancy is expressed
+in tenths of a percent, from 0 to 100.0 percent, in the samplePercentOccupancy
+data element. For a virtual zone (one created using AND and/or OR Boolean
+functions), the percent of time that the output for the zone was activated
+shall be returned. The value of 65535 shall be returned to represent an invalid
+or missing value. A missing value is reported when the zoneStatus is anything
+other than OK for the entire sampling period. Values 1001 through 65534 are
+reserved for future use.
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4.1.5"
 ::= { sampleDataEntry 5 }
@@ -2091,7 +2486,14 @@ UNITS   "tenths of km/h"
 MAX-ACCESS  read-only
 STATUS  current
 DESCRIPTION 
-"<Definition> Arithmetic mean of speeds collected over the sample period with units of 1/10ths of km/h. For a virtual zone (one created using AND and/or OR Boolean functions), the value of 65535 shall be returned as it is not straight forward to calculate speed from logically combined zones. For a volume of zero during the sample period, the value of 65535 shall be returned to represent an invalid or missing value. A missing value is reported when the zoneStatus returned indicates no other status values apply for the entire sampling period. Values 2551 through 65534 are reserved for future use.
+"<Definition> Arithmetic mean of speeds collected over the sample period with
+units of 1/10ths of km/h. For a virtual zone (one created using AND and/or OR
+Boolean functions), the value of 65535 shall be returned as it is not straight
+forward to calculate speed from logically combined zones. For a volume of zero
+during the sample period, the value of 65535 shall be returned to represent an
+invalid or missing value. A missing value is reported when the zoneStatus
+returned indicates no other status values apply for the entire sampling period.
+Values 2551 through 65534 are reserved for future use.
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4.1.6"
 ::= { sampleDataEntry 6 }
@@ -2141,7 +2543,9 @@ DESCRIPTION
       pairedZoneFault(14) - Indicates that there was no problem with this
       zone, but a zone that it is paired with had a fault. This may affect
       the accuracy of data reported by this zone.
-If a condition occurs during the sample period, then that state remains for the duration of that sample period. If multiple conditions occur during a sample period, the last reported condition, other than OK, is retained.
+If a condition occurs during the sample period, then that state remains for the
+duration of that sample period. If multiple conditions occur during a sample
+period, the last reported condition, other than OK, is retained.
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4.1.7"
 ::= { sampleDataEntry 7 }
@@ -2153,7 +2557,10 @@ UNITS   "historic data entries"
 MAX-ACCESS  read-only
 STATUS  current
 DESCRIPTION 
-"<Definition> The data sample's sequence number, used to determine the appropriate order of samples for a particular zone. All data from the same sampling period have the same historical sequence number (all classes from the same period have the same sequence number). 
+"<Definition> The data sample's sequence number, used to determine the
+appropriate order of samples for a particular zone. All data from the same
+sampling period have the same historical sequence number (all classes from the
+same period have the same sequence number). 
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4.1.8"
 ::= { sampleDataEntry 8 }
@@ -2164,23 +2571,12 @@ SYNTAX     ITSTimeStamp
 MAX-ACCESS read-only
 STATUS     current
 DESCRIPTION 
-"<Definition> If fdClockLocalTime is supported, indicates the value of fdClockLocalTime when this data collection period ended. If fdClockLocalTime is not supported, indicates the value of fdClockUtcTime when this data collection period ended.
+"<Definition> Indicates the value of fdClockUtcTime when this data collection
+period ended. 
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4.1.3"
 DEFVAL { '0000000000000000'H }
-::= { sampleDataEntry 10 }
-
--- 5.4.4.10 Sample End Time Ticks
-sampleEndTimeTicks OBJECT-TYPE
-SYNTAX     TimeTicks
-MAX-ACCESS read-only
-STATUS     current
-DESCRIPTION 
-"<Definition> Indicates the value of sysUpTime when this data collection period ended.
-<Parameter Type> Status 
-<Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.4.1.3"
-DEFVAL { 0 }
-::= { sampleDataEntry 11 }
+::= { sampleDataEntry 9 }
 
 -- 5.4.5 Zone Class Table
 zoneClassTable OBJECT-TYPE
@@ -2188,7 +2584,10 @@ SYNTAX     SEQUENCE OF ZoneClassTableEntry
 MAX-ACCESS not-accessible
 STATUS     current
 DESCRIPTION 
-"<Definition> This is a table that allows the TSS to associate a label for each class within each zone. These are most likely set by the manufacturer; however the manufacturer may allow the user to modify these through means outside of this protocol.
+"<Definition> This is a table that allows the TSS to associate a label for each
+class within each zone. These are most likely set by the manufacturer; however
+the manufacturer may allow the user to modify these through means outside of
+this protocol.
 <TableType> static
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.5"
 ::= { tssDataCollection 5 }
@@ -2212,7 +2611,8 @@ SYNTAX     SnmpAdminString
 MAX-ACCESS read-only
 STATUS     current
 DESCRIPTION
-"<Definition> The textual label assigned to the indicated class within the indicated zone to aid in identifying the data contained within the class. 
+"<Definition> The textual label assigned to the indicated class within the
+indicated zone to aid in identifying the data contained within the class. 
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.3.5.1.1"
 ::= { zoneClassTableEntry 1 }
@@ -2221,7 +2621,13 @@ DESCRIPTION
 tssInductiveLoop OBJECT-IDENTITY
 STATUS  current
 DESCRIPTION
-"This node contains the configuration objects specific to inductive loop detectors. These objects set up physical parameters on the detector that are controlled on a per output basis. These objects are only valid for the zones that map directly to an output on the detector. Zone 1 maps to output 1 and Zone 2 maps to output 2 on a two-channel sensor unit and Zone 3 maps to output 3, and Zone 4 maps to output 4 on a four-channel sensor unit. For inductive loop detectors, the term 'channel' is often used to refer to an 'output'.
+"This node contains the configuration objects specific to inductive loop
+detectors. These objects set up physical parameters on the detector that are
+controlled on a per output basis. These objects are only valid for the zones
+that map directly to an output on the detector. Zone 1 maps to output 1 and
+Zone 2 maps to output 2 on a two-channel sensor unit and Zone 3 maps to output
+3, and Zone 4 maps to output 4 on a four-channel sensor unit. For inductive
+loop detectors, the term 'channel' is often used to refer to an 'output'.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4"
 ::= { tss 4 }
 
@@ -2231,7 +2637,17 @@ SYNTAX  SEQUENCE OF LoopSensorSetupEntry
 MAX-ACCESS  not-accessible
 STATUS  current
 DESCRIPTION 
-"<Definition> This table contains inductive loop detector sensor zone parameters. The number of rows in this table equals the number of loop detectors (this is typically the number of maxSensorZones but sensor zones not associated with loop detectors are not present in the table). This table contains the configuration objects specific to inductive loop detectors. These objects set up physical parameters on the detector that are controlled on a per output basis. A zone maps directly to an output on an inductive loop detector - Zone 1 maps to output 1, Zone 2 maps to output 2, and, on a four-channel sensor unit, Zone 3 maps to output 3 and Zone 4 maps to output 4. Virtual zones may be supported once all physical outputs have had sensor zones mapped to them. Table rows are set by the manufacturer, and row creation/deletion is not supported.
+"<Definition> This table contains inductive loop detector sensor zone
+parameters. The number of rows in this table equals the number of loop
+detectors (this is typically the number of maxSensorZones but sensor zones not
+associated with loop detectors are not present in the table). This table
+contains the configuration objects specific to inductive loop detectors. These
+objects set up physical parameters on the detector that are controlled on a per
+output basis. A zone maps directly to an output on an inductive loop detector -
+Zone 1 maps to output 1, Zone 2 maps to output 2, and, on a four-channel sensor
+unit, Zone 3 maps to output 3 and Zone 4 maps to output 4. Virtual zones may be
+supported once all physical outputs have had sensor zones mapped to them. Table
+rows are set by the manufacturer, and row creation/deletion is not supported.
 <TableType> static
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.1"
 ::= { tssInductiveLoop 1 }
@@ -2241,7 +2657,9 @@ SYNTAX  LoopSensorSetupEntry
 MAX-ACCESS  not-accessible
 STATUS  current
 DESCRIPTION 
-"<Definition> Row in table that contains inductive loop detector sensor zone parameters. The number of rows equals the number of loop detectors. [KV6]Table rows are set by the manufacturer, and row creation/deletion is not supported.
+"<Definition> Row in table that contains inductive loop detector sensor zone
+parameters. The number of rows equals the number of loop detectors. Table
+rows are set by the manufacturer, and row creation/deletion is not supported.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.1.1"
 
 INDEX { sensorZoneNumber }
@@ -2262,7 +2680,8 @@ SYNTAX     INTEGER {
 MAX-ACCESS read-only
 STATUS     current
 DESCRIPTION 
-"<Definition> Sensitivity mode in use. This is a characteristic of the loop detector being used.
+"<Definition> Sensitivity mode in use. This is a characteristic of the loop
+detector being used.
 <Format>
 1 - change in inductance
 2 - change in inductance divided by the squareroot of inductance
@@ -2279,7 +2698,9 @@ STATUS     current
 DESCRIPTION 
 "<Definition> This object indicates the sensitivity configuration for the zone. 
 <Format>
-The high-order bit acts as an encoding flag; the remaining 15 bits are encoded as a two-octet non-negative-binary-integer according to the rules of OER. When the high-order bit is zero, the following rules apply
+The high-order bit acts as an encoding flag; the remaining 15 bits are encoded
+as a two-octet non-negative-binary-integer according to the rules of OER. When
+the high-order bit is zero, the following rules apply
 
      value        Meaning
       0        Zone OFF (Disabled) (LSB)
@@ -2292,9 +2713,17 @@ The high-order bit acts as an encoding flag; the remaining 15 bits are encoded a
       7        Detect ?L = 8 nanoHenries or ?L/L = 0.01%
   8-32767      Reserved
 
-These sensitivity definitions are equal with a loop inductance of 80 microhenry. A detector need not support all of these settings. However, the sensitivities it does support are required to conform with these definitions, e.g. a sensitivity setting of 3 is always 128 nanohenry or 0.16% with an 80 microhenry loop. 
+These sensitivity definitions are equal with a loop inductance of 80
+microhenry. A detector need not support all of these settings. However, the
+sensitivities it does support are required to conform with these definitions,
+e.g. a sensitivity setting of 3 is always 128 nanohenry or 0.16% with an 80
+microhenry loop. 
 
-A value of 0xFFFF =(65535) shall indicate invalid data or not a physical zone. Otherwise, if the high-order bit of the first octet is set, the remaining bits indicate the sensitivity in nanohenry or one-thousands of a percent (depending on the value in zoneSensitivityMode), e.g. a value of 0x8E42 = (high-bit set + 3650) and represents either 3650 nonohenry or 3.650%. 
+A value of 0xFFFF =(65535) shall indicate invalid data or not a physical zone.
+Otherwise, if the high-order bit of the first octet is set, the remaining bits
+indicate the sensitivity in nanohenry or one-thousands of a percent (depending
+on the value in zoneSensitivityMode), e.g. a value of 0x8E42 = (high-bit set +
+3650) and represents either 3650 nonohenry or 3.650%. 
 <Informative> The value assignments are summarized in the table below:
 
 +-------+-------------+----------------------+
@@ -2329,8 +2758,12 @@ SYNTAX     ITSUByteString (SIZE(1))
 MAX-ACCESS read-write
 STATUS     current
 DESCRIPTION
-"<Definition> The frequency level. Implementations must support at least four levels and may support up to eight levels, numbered sequentially from zero
-As the frequency level increases the operation frequency shall increase. The loop frequency at level zero (0) shall be less than 88% of the loop frequency at the highest level. A value of 255 shall be returned to represent invalid data or not a physical zone. Values of 8 through 254 are reserved.
+"<Definition> The frequency level. Implementations must support at least four
+levels and may support up to eight levels, numbered sequentially from zero
+As the frequency level increases the operation frequency shall increase. The
+loop frequency at level zero (0) shall be less than 88% of the loop frequency
+at the highest level. A value of 255 shall be returned to represent invalid
+data or not a physical zone. Values of 8 through 254 are reserved.
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.1.1.3"
 ::= { loopSensorSetupEntry 3 }
@@ -2348,7 +2781,8 @@ SYNTAX     INTEGER {
 MAX-ACCESS read-write
 STATUS     current
 DESCRIPTION
-"<Definition> The zone configuration provides for standardized sensor loop layouts typically used in roadway applications.
+"<Definition> The zone configuration provides for standardized sensor loop
+layouts typically used in roadway applications.
       other(1) - Used for special loop configurations and layouts.
       oneSixBySixLoopOneLane(2) - Used when there is one six-foot by six-
       foot loop in one travel lane.
@@ -2372,8 +2806,12 @@ SYNTAX  SEQUENCE OF LoopOutputConditioningEntry
 MAX-ACCESS  not-accessible
 STATUS  deprecated
 DESCRIPTION 
-"<Definition> Each table row contains objects for configuring inductive loop detector sensor zone outputs. The number of rows in this table does not exceed maxSensorZones. Table rows are set by the manufacturer, and row creation/deletion is not supported.
-<Superseded by> outputConditioningTable. If this object is supported, it must contain data that is consistent with the outputConditioningTable.
+"<Definition> Each table row contains objects for configuring inductive loop
+detector sensor zone outputs. The number of rows in this table does not exceed
+maxSensorZones. Table rows are set by the manufacturer, and row
+creation/deletion is not supported.
+<Superseded by> outputConditioningTable. If this object is supported, it must
+contain data that is consistent with the outputConditioningTable.
 <Informative> This object was deprecated in NTCIP 1209 v02.
 <TableType> static
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.2"
@@ -2384,8 +2822,10 @@ SYNTAX  LoopOutputConditioningEntry
 MAX-ACCESS  not-accessible
 STATUS  deprecated
 DESCRIPTION 
-"<Definition> Each table row contains inductive loop detector sensor zone output conditioning parameters. 
-<Superseded by> outputConditioningEntry. If this object is supported, it must contain data that is consistent with its superseding object.
+"<Definition> Each table row contains inductive loop detector sensor zone
+output conditioning parameters. 
+<Superseded by> outputConditioningEntry. If this object is supported, it must
+contain data that is consistent with its superseding object.
 <Informative> This object was deprecated in NTCIP 1209 v02.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.2.1"
 
@@ -2409,7 +2849,8 @@ SYNTAX     INTEGER {
 MAX-ACCESS read-write
 STATUS     deprecated
 DESCRIPTION 
-"<Definition> This object sets the length of the output during a detect condition. These detect outputs are described as follows:
+"<Definition> This object sets the length of the output during a detect
+condition. These detect outputs are described as follows:
       Other - an output mode other than that defined in NTCIP 1209.
       Pulse - a pulse of 125ms (?25ms) is output when a vehicle is
       detected.
@@ -2417,7 +2858,8 @@ DESCRIPTION
       until the detector tunes out the detect signal.
 A value of 255 shall be returned to represent invalid data.
 <Parameter Type> Configuration 
-<Superseded by> sensorZoneOutputMode. If this object is supported, it must contain data that is consistent with its superseding object.
+<Superseded by> sensorZoneOutputMode. If this object is supported, it must
+contain data that is consistent with its superseding object.
 <Informative> This object was deprecated in NTCIP 1209 v02.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.2.1.1"
 ::= { loopOutputConditioningEntry 1 }
@@ -2429,9 +2871,13 @@ UNITS      "seconds"
 MAX-ACCESS read-write
 STATUS     deprecated
 DESCRIPTION 
-"<Definition> This object sets the maximum time that the zone holds presence before retuning. Values of 1 to 65534 seconds are available. A value of 0 disables this timer and prevents a sensor zone occupancy from being tuned out at the end of a specific time. A value of 65,535 represents invalid data.
+"<Definition> This object sets the maximum time that the zone holds presence
+before retuning. Values of 1 to 65534 seconds are available. A value of 0
+disables this timer and prevents a sensor zone occupancy from being tuned out
+at the end of a specific time. A value of 65,535 represents invalid data.
 <Parameter Type> Configuration 
-<Superseded by> sensorZoneMaxPresenceTime. If this object is supported, it must contain data that is consistent with its superseding object.
+<Superseded by> sensorZoneMaxPresenceTime. If this object is supported, it must
+contain data that is consistent with its superseding object.
 <Informative> This object was deprecated in NTCIP 1209 v02.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.2.1.2"
 ::= { loopOutputConditioningEntry 2 }
@@ -2443,9 +2889,13 @@ UNITS      "deciseconds"
 MAX-ACCESS read-write
 STATUS     deprecated
 DESCRIPTION 
-"<Definition> The output for the zone is delayed from start of sensor zone occupancy by the time specified (tenths of a second:  00.0 to 6553.5 sec). For the output to actually switch, the sensor zone occupancy is required to be continuous and still be present at the end of the delay time.
+"<Definition> The output for the zone is delayed from start of sensor zone
+occupancy by the time specified (tenths of a second:  00.0 to 6553.5 sec). For
+the output to actually switch, the sensor zone occupancy is required to be
+continuous and still be present at the end of the delay time.
 <Parameter Type> Configuration 
-<Superseded by> sensorZoneOutputDelayTime. If this object is supported, it must contain data that is consistent with its superseding object.
+<Superseded by> sensorZoneOutputDelayTime. If this object is supported, it must
+contain data that is consistent with its superseding object.
 <Informative> This object was deprecated in NTCIP 1209 v02.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.2.1.3"
 REFERENCE
@@ -2459,9 +2909,12 @@ UNITS      "deciseconds"
 MAX-ACCESS read-write
 STATUS     deprecated
 DESCRIPTION 
-"<Definition> The output for the zone is extended, after the end of the period in which the sensor zone is occupied, by the amount of time specified (tenths of a second: 00.0 to 6553.5 sec).
+"<Definition> The output for the zone is extended, after the end of the period
+in which the sensor zone is occupied, by the amount of time specified (tenths
+of a second: 00.0 to 6553.5 sec).
 <Parameter Type> Configuration 
-<Superseded by> sensorZoneOutputExtendTime. If this object is supported, it must contain data that is consistent with its superseding object.
+<Superseded by> sensorZoneOutputExtendTime. If this object is supported, it
+must contain data that is consistent with its superseding object.
 <Informative> This object was deprecated in NTCIP 1209 v02.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.2.1.4"
 REFERENCE
@@ -2474,7 +2927,8 @@ SYNTAX     OCTET STRING (SIZE(1))
 MAX-ACCESS read-write
 STATUS     deprecated
 DESCRIPTION  
-"<Definition> A bit-mapped value as defined below to enable and disable the extend time for the sensor zone output, as follows:
+"<Definition> A bit-mapped value as defined below to enable and disable the
+extend time for the sensor zone output, as follows:
 <Format>
 bit 7    0 = NO, 1 = YES            HIGH on output 1 Arming Pin to enable
                                     extend time for the zone (MSB),
@@ -2494,7 +2948,9 @@ bit 0    0 = NO, 1 = YES            LOW on output 4 Arming Pin to enable
                                     extend time for the zone (LSB).
 Extend time is always enabled for the zone if all bits are zero (0).
 <Parameter Type> Configuration 
-<Superseded by> sensorZoneOutputExtendMode and sensorZoneOutputExtendEnables. If this object is supported, it must contain data that is consistent with its superseding objects.
+<Superseded by> sensorZoneOutputExtendMode and sensorZoneOutputExtendEnables.
+If this object is supported, it must contain data that is consistent with its
+superseding objects.
 <Informative> This object was deprecated in NTCIP 1209 v02.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.2.1.5"
 REFERENCE
@@ -2507,7 +2963,8 @@ SYNTAX     OCTET STRING (SIZE(1))
 MAX-ACCESS read-write
 STATUS     deprecated
 DESCRIPTION  
-"<Definition> A bit-mapped value as defined below to enable and disable the delay time for the sensor zone output, as follows:
+"<Definition> A bit-mapped value as defined below to enable and disable the
+delay time for the sensor zone output, as follows:
 <Format>
 bit 7    0 = NO, 1 = YES            HIGH on output 1 Arming Pin to enable
                                     delay time for the zone (MSB),
@@ -2527,7 +2984,9 @@ bit 0    0 = NO, 1 = YES            LOW on output 4 Arming Pin to enable delay
                                     time for the zone,
 Delay time is always enabled for the zone if all bits are zero (0).
 <Parameter Type> Configuration 
-<Superseded by> sensorZoneOutputDelayMode and sensorZoneOutputDelayEnables. If this object is supported, it must contain data that is consistent with its superseding objects.
+<Superseded by> sensorZoneOutputDelayMode and sensorZoneOutputDelayEnables. If
+this object is supported, it must contain data that is consistent with its
+superseding objects.
 <Informative> This object was deprecated in NTCIP 1209 v02.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.2.1.6"
 REFERENCE
@@ -2540,7 +2999,15 @@ SYNTAX  SEQUENCE OF LoopSystemStatusEntry
 MAX-ACCESS  not-accessible
 STATUS  current
 DESCRIPTION 
-"<Definition> This table contains inductive loop detector sensor zone status parameters. The number of rows in this table does not exceed maxSensorZones. This table contains instantaneous zone status objects specific to inductive loop detectors. The zoneDetectStatus object may be used by external systems for doing detailed traffic analysis. A zone maps directly to an output on an inductive loop detector - Zones 1 maps to output 1, Zone 2 maps to output 2, and, on a four output inductive loop detector, Zone 3 maps to output 3 and Zone 4 maps to output 4. Table rows are set by the manufacturer, and row creation/deletion is not supported.
+"<Definition> This table contains inductive loop detector sensor zone status
+parameters. The number of rows in this table does not exceed maxSensorZones.
+This table contains instantaneous zone status objects specific to inductive
+loop detectors. The zoneDetectStatus object may be used by external systems for
+doing detailed traffic analysis. A zone maps directly to an output on an
+inductive loop detector - Zones 1 maps to output 1, Zone 2 maps to output 2,
+and, on a four output inductive loop detector, Zone 3 maps to output 3 and Zone
+4 maps to output 4. Table rows are set by the manufacturer, and row
+creation/deletion is not supported.
 <TableType> static
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.3"
 ::= { tssInductiveLoop 3 }
@@ -2550,7 +3017,10 @@ SYNTAX  LoopSystemStatusEntry
 MAX-ACCESS  not-accessible
 STATUS  current
 DESCRIPTION 
-"<Definition> Rows in this table contain inductive loop detector sensor zone status parameters. The number of rows in this table does not exceed maxSensorZones. Table rows are set by the manufacturer, and row creation/deletion is not supported. 
+"<Definition> Rows in this table contain inductive loop detector sensor zone
+status parameters. The number of rows in this table does not exceed
+maxSensorZones. Table rows are set by the manufacturer, and row
+creation/deletion is not supported. 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.3.1"
 INDEX { sensorZoneNumber }
 ::= { loopSystemStatusTable 1 }
@@ -2570,7 +3040,11 @@ UNITS      "tenths of microhenry"
 MAX-ACCESS read-only
 STATUS     current
 DESCRIPTION 
-"<Definition> The detector unit calculates the inductance of the loop attached to the zone. The resolution is in tenths of a microhenry. For example, 852.4 microhenry is represented as 8524. Resolution does not imply accuracy, refer to manufacturers' data sheet. A value of 65535 shall be returned to represent invalid data or not a physical zone.
+"<Definition> The detector unit calculates the inductance of the loop attached
+to the zone. The resolution is in tenths of a microhenry. For example, 852.4
+microhenry is represented as 8524. Resolution does not imply accuracy, refer to
+manufacturers' data sheet. A value of 65535 shall be returned to represent
+invalid data or not a physical zone.
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.3.1.1"
 ::= { loopSystemStatusEntry 1 }
@@ -2582,7 +3056,11 @@ UNITS      "tenths of hertz"
 MAX-ACCESS read-only
 STATUS     current
 DESCRIPTION  
-"<Definition> This is the frequency of the inductive loop attached to the zone. The frequency resolution is one-tenth hertz. For example, 53240 Hz is represented as 532400. Resolution does not imply accuracy, refer to manufacturers' data sheet. A value of 16777216 shall be returned to represent invalid data or not a physical zone.
+"<Definition> This is the frequency of the inductive loop attached to the zone.
+The frequency resolution is one-tenth hertz. For example, 53240 Hz is
+represented as 532400. Resolution does not imply accuracy, refer to
+manufacturers' data sheet. A value of 16777216 shall be returned to represent
+invalid data or not a physical zone.
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.3.1.2"
 ::= { loopSystemStatusEntry 2 }
@@ -2594,7 +3072,9 @@ UNITS      "nanohenry"
 MAX-ACCESS read-only
 STATUS     current
 DESCRIPTION  
-"<Definition> The maximum inductance change seen since the last start of sensor zone occupancy is returned. The resolution is to one nanohenry. Resolution does not imply accuracy.
+"<Definition> The maximum inductance change seen since the last start of sensor
+zone occupancy is returned. The resolution is to one nanohenry. Resolution does
+not imply accuracy.
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.3.1.3"
 ::= { loopSystemStatusEntry 3 }
@@ -2605,7 +3085,8 @@ SYNTAX     ITSBitmap (SIZE (1))
 MAX-ACCESS read-only
 STATUS     current
 DESCRIPTION  
-"<Definition> A bit-mapped value representing the history of faults in Zone since the last unit reset.
+"<Definition> A bit-mapped value representing the history of faults in Zone
+since the last unit reset.
 <Format>
 Bit   Meaning
  0    Indicates that a current fault exists on the loop connected to the zone
@@ -2632,9 +3113,13 @@ UNITS      "faults"
 MAX-ACCESS read-only
 STATUS     current
 DESCRIPTION 
-"<Definition> Number of faults in the zone since the last unit reset. These faults include open circuit; short circuit and ?25% drift faults. The fault count may also include faults other than those defined in NTCIP 1209. The count after 255 is 255.
+"<Definition> Number of faults in the zone since the last unit reset. These
+faults include open circuit; short circuit and ?25% drift faults. The fault
+count may also include faults other than those defined in NTCIP 1209. The count
+after 255 is 255.
 <Parameter Type> Status 
-<Informative> This is similar to a zero-based counter except that the value sticks at 255 and never loops.
+<Informative> This is similar to a zero-based counter except that the value
+sticks at 255 and never loops.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.3.1.5"
 ::= { loopSystemStatusEntry 5 }
 
@@ -2645,7 +3130,10 @@ UNITS      "millipercent"
 MAX-ACCESS read-only
 STATUS     current
 DESCRIPTION  
-"<Definition> The maximum inductance change seen since the last start of sensor zone occupancy is returned. The resolution is to one one-thousandth of a percent. Resolution does not imply accuracy. For example a change of 0.1 percent would be represented as 100.
+"<Definition> The maximum inductance change seen since the last start of sensor
+zone occupancy is returned. The resolution is to one one-thousandth of a
+percent. Resolution does not imply accuracy. For example a change of 0.1
+percent would be represented as 100.
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.4.3.1.6"
 ::= { loopSystemStatusEntry 6 }
@@ -2654,7 +3142,8 @@ DESCRIPTION
 tssMachineVision OBJECT-IDENTITY
 STATUS current
 DESCRIPTION
-"This node contains the configuration objects specific to machine vision detectors.
+"This node contains the configuration objects specific to machine vision
+detectors.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5"
 ::={tss 5}
 
@@ -2664,7 +3153,8 @@ SYNTAX     Integer32 (1..255)
 MAX-ACCESS read-only
 STATUS     current
 DESCRIPTION
-"<Definition> This is the maximum number of machine vision cameras supported by the system.
+"<Definition> This is the maximum number of machine vision cameras supported by
+the system.
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.1"
 ::= { tssMachineVision 1 }
@@ -2675,8 +3165,13 @@ SYNTAX  SEQUENCE OF MachineVisionCameraEntry
 MAX-ACCESS  not-accessible
 STATUS  current
 DESCRIPTION
-"<Definition> This table contains camera parameters. The number of rows in this table does not exceed [KV9]maxCameraCount. This table contains the configuration objects specific to machine vision cameras. Table rows are set by the manufacturer, and row creation/deletion is not supported.
+"<Definition> This table contains camera parameters. The number of rows in this
+table shall equal maxCameraCount. This table contains the configuration objects
+specific to machine vision cameras. Table rows are set by the manufacturer, and
+row creation/deletion is not supported.
 <TableType>  Static
+<Informative> Prior to v03, this object stated that the number of rows would
+not exceed maxCameraCount; the number of rows is now required to be equal.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.2"
 ::= { tssMachineVision 2 }
 
@@ -2685,7 +3180,11 @@ SYNTAX  MachineVisionCameraEntry
 MAX-ACCESS  not-accessible
 STATUS  current
 DESCRIPTION
-"<Definition> Row in table that contains machine vision camera parameters. The number of rows in this table does not exceed maxCameraCount. Table rows are set by the manufacturer, and row creation/deletion is not supported. 
+"<Definition> Row in table that contains machine vision camera parameters. The
+number of rows in this table shall equal maxCameraCount. Table rows are set by
+the manufacturer, and row creation/deletion is not supported. 
+<Informative> Prior to v03, this object stated that the number of rows would
+not exceed maxCameraCount; the number of rows is now required to be equal.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.2.1"
 INDEX { cameraNumber }
 ::= { machineVisionCameraTable 1 }
@@ -2695,7 +3194,7 @@ MachineVisionCameraEntry ::= SEQUENCE {
       cameraNameLabel               SnmpAdminString,
       imageReceptionDiagnostic      Integer32,
       cameraDetectionState          INTEGER,
-      zoneListForCamera             BITMAP256,
+      zoneListForCamera             TssBitmap256,
       baselineImage                 INTEGER,
       snapshotImage                 INTEGER,
       cameraImageFormat             ITSBitmap,
@@ -2707,7 +3206,8 @@ SYNTAX     Integer32 (1..255)
 MAX-ACCESS read-only
 STATUS     current
 DESCRIPTION
-"<Definition> The numerical label or number of the machine vision camera. This number shall not exceed the maxCameraCount data element value.
+"<Definition> The numerical label or number of the machine vision camera. This
+number shall not exceed the maxCameraCount data element value.
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.2.1.1"
 ::= { machineVisionCameraEntry 1 }
@@ -2718,7 +3218,8 @@ SYNTAX     SnmpAdminString
 MAX-ACCESS read-write
 STATUS     current
 DESCRIPTION
-"<Definition> A text string used to describe the camera name or location. A camera name shall be a string length of less than 255 characters. 
+"<Definition> A text string used to describe the camera name or location. A
+camera name shall be a string length of less than 255 characters. 
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.2.1.2"
 ::= { machineVisionCameraEntry 2 }
@@ -2729,7 +3230,12 @@ SYNTAX     Integer32 (0..100)
 MAX-ACCESS read-only 
 STATUS     current
 DESCRIPTION
-"<Definition> Image Reception Diagnostics is a measure of the health of the image transition link from the camera to the machine vision processor. A value of 100 means that all of the frames are being received and a value of 0 means that frames are not being received. Values between 0 and 100 are manufacturer-specific. This is used to track and debug transmission errors from the camera to the machine vision processor. 
+"<Definition> Image Reception Diagnostics is a measure of the health of the
+image transition link from the camera to the machine vision processor. A value
+of 100 means that all of the frames are being received and a value of 0 means
+that frames are not being received. Values between 0 and 100 are manufacturer-
+specific. This is used to track and debug transmission errors from the camera
+to the machine vision processor. 
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.2.1.3"
 ::= { machineVisionCameraEntry 3 }
@@ -2742,18 +3248,29 @@ SYNTAX     INTEGER {
 MAX-ACCESS read-write
 STATUS     current
 DESCRIPTION
-"<Definition> A camera can be enabled/disabled so that it may be used for other purposes such as surveillance. A disabled camera puts the associated zones in failsafe mode. If a pole has been hit and the camera is no longer looking at the traffic this can be used to put all the zones associated with that camera in failsafe mode. It can also be used for pan-tilt-zoom camera to disable detection so that the camera may be used for surveillance allowing the camera to look at areas other than the detection area. Enabling the camera places all the zones associated with that camera back into their defined detection mode.
+"<Definition> A camera can be enabled/disabled so that it may be used for other
+purposes such as surveillance. A disabled camera puts the associated zones in
+failsafe mode. If a pole has been hit and the camera is no longer looking at
+the traffic this can be used to put all the zones associated with that camera
+in failsafe mode. It can also be used for pan-tilt-zoom camera to disable
+detection so that the camera may be used for surveillance allowing the camera
+to look at areas other than the detection area. Enabling the camera places all
+the zones associated with that camera back into their defined detection mode.
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.2.1.4"
 ::= { machineVisionCameraEntry 4 }
 
 -- 5.6.2.5 Zone List for Camera
 zoneListForCamera  OBJECT-TYPE
-SYNTAX     BITMAP256
+SYNTAX     TssBitmap256
 MAX-ACCESS read-only
 STATUS     deprecated
 DESCRIPTION
-"<Definition> This is a bit map where a 1 in a bit position indicates that zone is with the selected camera. The least significant bit (bit 0) of the first octet (byte) shall represent zone 1 and bit 6 of the 32nd octet (byte) shall represent zone 255. The most significant bit of the 32nd octet (byte) is reserved and shall not be set.
+"<Definition> This is a bit map where a 1 in a bit position indicates that zone
+is with the selected camera. The least significant bit (bit 0) of the first
+octet (byte) shall represent zone 1 and bit 6 of the 32nd octet (byte) shall
+represent zone 255. The most significant bit of the 32nd octet (byte) is
+reserved and shall not be set.
 <Parameter Type> Status 
 <Superseded by> zoneListForCameraV3
 <Informative> This object was deprecated in v03 due to the confusing bit order. 
@@ -2769,7 +3286,8 @@ SYNTAX     INTEGER {
 MAX-ACCESS read-only
 STATUS     current
 DESCRIPTION
-"<Definition> Determines whether the machine vision camera supports a baseline image and the status of that image.
+"<Definition> Determines whether the machine vision camera supports a baseline
+image and the status of that image.
 <Parameter Type> Status 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.2.1.6"
 ::= { machineVisionCameraEntry 6 }
@@ -2782,7 +3300,8 @@ SYNTAX     INTEGER {
 MAX-ACCESS read-only
 STATUS     current
 DESCRIPTION
-"<Definition> This data element determines whether the machine vision camera supports a snapshot image.
+"<Definition> This data element determines whether the machine vision camera
+supports a snapshot image.
             notSupported(1) - Indicates that the machine vision camera does
             not support snapshot images.
             supported(2) - Indicates that the machine vision camera supports
@@ -2797,7 +3316,8 @@ SYNTAX     ITSBitmap (SIZE (4))
 MAX-ACCESS read-only
 STATUS     current
 DESCRIPTION 
-"<Definition> Defines the types of image formats that the machine vision camera supports.
+"<Definition> Defines the types of image formats that the machine vision camera
+supports.
 <Format>
 Bit 31      The machine vision camera supports bitmap imagery;
 Bit 30      The machine vision camera supports JPEG imagery;
@@ -2806,25 +3326,30 @@ Bits 0..29  Reserved.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.2.1.8"
 ::= { machineVisionCameraEntry 8 }
 
--- 5.6.2.9 Zone List for Camera
+-- 5.6.2.9 Zone List for Camera Version 3
 zoneListForCameraV3  OBJECT-TYPE
 SYNTAX      ITSBitmap (SIZE(32))
 MAX-ACCESS  read-only
 STATUS      current
 DESCRIPTION
-"<Definition> This is a bit map where a 1 in bit position x indicates that zone x is associated with the selected camera. The meaning of Bit 0 is reserved. 
+"<Definition> This is a bit map where a 1 in bit position x indicates that zone
+x is associated with the selected camera. The meaning of Bit 0 is reserved. 
 <Parameter Type> Status 
-<Informative> For example, the value 0x70 followed by 31 0x00 octets indicates that Zones 1, 2, and 3 are associated with the camera. 
+<Informative> For example, the value 0x70 followed by 31 0x00 octets indicates
+that Zones 1, 2, and 3 are associated with the camera. 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.2.1.9"
 ::= { machineVisionCameraEntry 9 }
 
 -- 5.6.3 Image Zone Number
-imageZoneNumber  OBJECT-TYPE
+imageZoneNumber  OBJECT-TYPE	
 SYNTAX     Integer32 (0..255)
 MAX-ACCESS read-write
 STATUS     current
 DESCRIPTION
-"<Definition> The numerical label or number representing the sensor zone number that is associated with the image. A value of zero (0) indicates that no sensor zone number is selected. When read, this data element returns the last value written.
+"<Definition> The numerical label or number representing the sensor zone number
+that is associated with the image. A value of zero (0) indicates that no sensor
+zone number is selected. When read, this data element returns the last value
+written.
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.3"
 ::= { tssMachineVision 3 }
@@ -2878,7 +3403,8 @@ SYNTAX     INTEGER {
 MAX-ACCESS read-write
 STATUS     current
 DESCRIPTION
-"<Definition> Identifies what format to return the machine vision camera image in.
+"<Definition> Identifies what format to return the machine vision camera image
+in.
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.6"
 ::= { tssMachineVision 6 }
@@ -2889,7 +3415,14 @@ SYNTAX     Integer32 (1..100)
 MAX-ACCESS read-write
 STATUS     current
 DESCRIPTION
-"<Definition> This data element is used to select the image quality. The meaning varies based on the Image Format. A value of 100 selects the highest quality available. A value of 1 selects the lowest quality available. Lower quality may mean smaller more compressed images. Some image formats do not support variable image quality so the value is ignored. If a manufacturer supports only two image qualities for a specific image format then values 1 to 50 should select the lower quality while values 51 to 100 should select the higher quality.
+"<Definition> This data element is used to select the image quality. The
+meaning varies based on the Image Format. A value of 100 selects the highest
+quality available. A value of 1 selects the lowest quality available. Lower
+quality may mean smaller more compressed images. Some image formats do not
+support variable image quality so the value is ignored. If a manufacturer
+supports only two image qualities for a specific image format then values 1 to
+50 should select the lower quality while values 51 to 100 should select the
+higher quality.
 <Parameter Type> Configuration 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.7"
 ::= { tssMachineVision 7 }
@@ -2902,7 +3435,9 @@ SYNTAX     INTEGER {
 MAX-ACCESS read-write
 STATUS     current
 DESCRIPTION 
-"<Definition> Writing the value buildImage to this data element commands the sensor to build an image based on the preceding parameters. A read of this data element always returns the last written. Values for this command are:
+"<Definition> Writing the value buildImage to this data element commands the
+sensor to build an image based on the preceding parameters. A read of this data
+element always returns the last written. Values for this command are:
             buildImage(1) - This command shall cause the unit to build an
             image that can be read.
             cancelBuildInProgress(2) - This command shall cause the unit to
@@ -2926,7 +3461,8 @@ SYNTAX     INTEGER {
 MAX-ACCESS read-only
 STATUS     current
 DESCRIPTION 
-"<Definition> Reading the value buildImageStatus from this data element yields the status of the current image to be read:
+"<Definition> Reading the value buildImageStatus from this data element yields
+the status of the current image to be read:
             noImage(1) - No Image is available for reading. This is the
             initial state if the buildImageCmd command has not been issued;
             buildingImage(2) - The sensor is in the progress of building the
@@ -2954,11 +3490,13 @@ DESCRIPTION
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.5.9"
 ::= { tssMachineVision 9 }
 
--- 5.7	Object Groups
+
+-- 5.7 OBJECT GROUPS
 tssConformance OBJECT-IDENTITY 
 STATUS current
 DESCRIPTION
-"<Definition> This node is an identifier used to manage the conformance for TSS. 
+"<Definition> This node is an identifier used to manage the conformance for
+TSS. 
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127"
 ::= { tss 127 }
 
@@ -2977,7 +3515,7 @@ DESCRIPTION
 ::= { tssConformance 2 }
 
 
--- 5.7.1	TSS Core Group Version 1
+-- 5.7.1 TSS Core Group Version 1
 tssCoreGroupV1 OBJECT-GROUP
 OBJECTS { sensorSystemReset,
           sensorSystemStatus,
@@ -3003,7 +3541,7 @@ NTCIP 1209 v01.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.1"
 ::= { tssGroups 1 }
 
--- 5.7.2	TSS Loop Group Version 1
+-- 5.7.2 TSS Loop Group Version 1
 tssLoopGroupV1 OBJECT-GROUP
 OBJECTS { zoneSensitivityMode,
           zoneSensitivity,
@@ -3020,7 +3558,7 @@ management in NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.2"
 ::= { tssGroups 2 }
 
--- 5.7.3	TSS Sample Group Version 1
+-- 5.7.3 TSS Sample Group Version 1
 tssSampleGroupV1 OBJECT-GROUP
 OBJECTS { sensorZoneSamplePeriod, 
           endTime,
@@ -3038,7 +3576,7 @@ NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.3"
 ::= { tssGroups 3 }
 
--- 5.7.4	TSS Speed Group Version 1
+-- 5.7.4 TSS Speed Group Version 1
 tssSpeedGroupV1 OBJECT-GROUP
 OBJECTS { speedData,
           speedDataBuffer }
@@ -3049,7 +3587,7 @@ NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.4"
 ::= { tssGroups 4 }
 
--- 5.7.5	TSS And Logic Group Version 1
+-- 5.7.5 TSS And Logic Group Version 1
 tssAndLogicGroupV1 OBJECT-GROUP
 OBJECTS { sensorZoneAndOperator }
 STATUS  current
@@ -3059,7 +3597,7 @@ NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.5"
 ::= { tssGroups 5 }
 
--- 5.7.6	TSS Or Logic Group Version 1
+-- 5.7.6 TSS Or Logic Group Version 1
 tssOrLogicGroupV1 OBJECT-GROUP
 OBJECTS { sensorZoneOrOperator }
 STATUS  current
@@ -3069,7 +3607,7 @@ NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.6"
 ::= { tssGroups 6 }
 
--- 5.7.7	TSS Delay Logic Group Version 1
+-- 5.7.7 TSS Delay Logic Group Version 1
 tssDelayLogicGroupV1 OBJECT-GROUP
 OBJECTS { zoneOutputMode,
           zoneMaxPresenceTime,
@@ -3082,7 +3620,7 @@ NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.7"
 ::= { tssGroups 7 }
 
--- 5.7.8	TSS Extend Logic Group Version 1
+-- 5.7.8 TSS Extend Logic Group Version 1
 tssExtendLogicGroupV1 OBJECT-GROUP
 OBJECTS { zoneOutputMode,
           zoneMaxPresenceTime,
@@ -3095,7 +3633,7 @@ NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.8"
 ::= { tssGroups 8 }
 
--- 5.7.9	TSS Sensor Label Group Version 1
+-- 5.7.9 TSS Sensor Label Group Version 1
 tssSensorLabelGroupV1 OBJECT-GROUP
 OBJECTS { sensorZoneLabel }
 STATUS  current
@@ -3105,7 +3643,7 @@ NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.9"
 ::= { tssGroups 9 }
 
--- 5.7.10	TSS Core Group Version 2
+-- 5.7.10 TSS Core Group Version 2
 tssCoreGroupV2 OBJECT-GROUP
 OBJECTS { sensorSystemReset,
           sensorSystemStatus,
@@ -3140,7 +3678,7 @@ NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.10"
 ::= { tssGroups 10 }
 
--- 5.7.11	TSS Configuration Group Version 2
+-- 5.7.11 TSS Configuration Group Version 2
 tssConfigGroupV2 OBJECT-GROUP
 OBJECTS { pendingConfigurationFileName }
 STATUS  deprecated
@@ -3150,7 +3688,7 @@ in NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.11"
 ::= { tssGroups 11 }
 
--- 5.7.12	TSS Loop Group Version 2
+-- 5.7.12 TSS Loop Group Version 2
 tssLoopGroupV2 OBJECT-GROUP
 OBJECTS { zoneSensitivityMode,
           zoneSensitivity,
@@ -3169,7 +3707,7 @@ management in NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.12"
 ::= { tssGroups 12 }
 
--- 5.7.13	TSS Sample Group Version 2
+-- 5.7.13 TSS Sample Group Version 2
 tssSampleGroupV2 OBJECT-GROUP
 OBJECTS { sensorZoneSamplePeriod, 
           maxSampleDataEntries,
@@ -3190,7 +3728,7 @@ NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.13"
 ::= { tssGroups 13 }
 
--- 5.7.14	TSS Speed Group Version 2
+-- 5.7.14 TSS Speed Group Version 2
 tssSpeedGroupV2 OBJECT-GROUP
 OBJECTS { sensorZonePairedZoneSpacing,
           sensorZoneSpeedCorrectionFactor,
@@ -3207,7 +3745,7 @@ NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.14"
 ::= { tssGroups 14 }
 
--- 5.7.15	TSS Video Group Version 2
+-- 5.7.15 TSS Video Group Version 2
 tssVideoGroupV2 OBJECT-GROUP
 OBJECTS { maxCameraCount, 
           cameraNumber,
@@ -3220,7 +3758,7 @@ management in NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.15"
 ::= { tssGroups 15 }
 
--- 5.7.16	TSS Delay Logic Group Version 2
+-- 5.7.16 TSS Delay Logic Group Version 2
 tssDelayLogicGroupV2 OBJECT-GROUP
 OBJECTS { sensorZoneMaxPresenceTime,
           sensorZoneOutputDelayTime,
@@ -3233,7 +3771,7 @@ NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.16"
 ::= { tssGroups 16 }
 
--- 5.7.17	TSS Extend Logic Group Version 2
+-- 5.7.17 TSS Extend Logic Group Version 2
 tssExtendLogicGroupV2 OBJECT-GROUP
 OBJECTS { sensorZoneMaxPresenceTime,
           sensorZoneOutputExtendTime,
@@ -3246,7 +3784,7 @@ NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.17"
 ::= { tssGroups 17 }
 
--- 5.7.18	TSS Arming Inputs Group Version 2
+-- 5.7.18 TSS Arming Inputs Group Version 2
 tssArmingInputsGroupV2 OBJECT-GROUP
 OBJECTS { externalArmingInputs }
 STATUS  deprecated
@@ -3256,7 +3794,7 @@ NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.18"
 ::= { tssGroups 18 }
 
--- 5.7.19	TSS Arming Outputs Group Version 2
+-- 5.7.19 TSS Arming Outputs Group Version 2
 tssArmingOutputsGroupV2 OBJECT-GROUP
 OBJECTS { outputArmingEnables,
           outputArmingMode }
@@ -3267,7 +3805,7 @@ NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.19"
 ::= { tssGroups 19 }
 
--- 5.7.20	TSS Camera Label Group Version 2
+-- 5.7.20 TSS Camera Label Group Version 2
 tssCameraLabelGroupV2 OBJECT-GROUP
 OBJECTS { cameraNameLabel }
 STATUS  current
@@ -3277,7 +3815,7 @@ NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.20"
 ::= { tssGroups 20 }
 
--- 5.7.21	TSS Image Group Version 2
+-- 5.7.21 TSS Image Group Version 2
 tssImageGroupV2 OBJECT-GROUP
 OBJECTS { baselineImage,
           snapshotImage,
@@ -3296,7 +3834,7 @@ NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.21"
 ::= { tssGroups 21 }
 
--- 5.7.22	TSS PTZ Group Version 2
+-- 5.7.22 TSS PTZ Group Version 2
 tssPTZGroupV2 OBJECT-GROUP
 OBJECTS { cameraDetectionState }
 STATUS  current
@@ -3306,7 +3844,7 @@ zoom in NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.22"
 ::= { tssGroups 22 }
 
--- 5.7.23	TSS Core Group Version 3
+-- 5.7.23 TSS Core Group Version 3
 tssCoreGroupV3 OBJECT-GROUP
 OBJECTS { sensorSystemReset,
           sensorSystemStatus,
@@ -3343,7 +3881,7 @@ NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.23"
 ::= { tssGroups 23 }
 
--- 5.7.24	TSS Arming Inputs Group Version 3
+-- 5.7.24 TSS Arming Inputs Group Version 3
 tssArmingInputsGroupV3 OBJECT-GROUP
 OBJECTS { externalArmingInputsV3,
           externalArmingBitStatus }
@@ -3354,7 +3892,7 @@ NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.24"
 ::= { tssGroups 24 }
 
--- 5.7.25	TSS Arming Outputs Group Version 3
+-- 5.7.25 TSS Arming Outputs Group Version 3
 tssArmingOutputsGroupV3 OBJECT-GROUP
 OBJECTS { outputArmingEnablesV3,
           outputArmingMode }
@@ -3365,7 +3903,7 @@ NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.25"
 ::= { tssGroups 25 }
 
--- 5.7.26	TSS Sample Group Version 3
+-- 5.7.26 TSS Sample Group Version 3
 tssSampleGroupV3 OBJECT-GROUP
 OBJECTS { sensorZoneSamplePeriod, 
           maxSampleDataEntries,
@@ -3378,8 +3916,7 @@ OBJECTS { sensorZoneSamplePeriod,
           sampleZoneStatus,
           sampleSequenceNumber,
           zoneClassLabel,
-          sampleEndTimeStamp,
-          sampleEndTimeTicks }
+          sampleEndTimeStamp }
 STATUS  current
 DESCRIPTION
 "<Definition> The set of TSS objects required for TSS sample management in 
@@ -3387,7 +3924,7 @@ NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.26"
 ::= { tssGroups 26 }
 
--- 5.7.27	TSS Video Group Version 3
+-- 5.7.27 TSS Video Group Version 3
 tssVideoGroupV3 OBJECT-GROUP
 OBJECTS { maxCameraCount, 
           cameraNumber,
@@ -3399,7 +3936,5 @@ DESCRIPTION
 management in NTCIP 1209 v03.
 <Object Identifier> 1.3.6.1.4.1.1206.4.2.4.127.2.27"
 ::= { tssGroups 27 }
-
-
 
 END
